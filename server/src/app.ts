@@ -7,6 +7,7 @@ import { createSearchRouter } from './modules/search/search.routes.js';
 import { PaperRepository } from './modules/paper/paper.repository.js';
 import { createPaperRouter } from './modules/paper/paper.routes.js';
 import { PaperService } from './modules/paper/paper.service.js';
+import { PaperSearchService } from './modules/search/paper-search.service.js';
 
 interface AppDependencies {
   paperRepository: PaperRepository;
@@ -22,7 +23,10 @@ export function createApp(dependencies: AppDependencies) {
   const externalPaperSearch = dependencies.externalPaperSearch ?? new ExternalPaperSearchService(
     new DblpClient(), new OpenAlexClient(),
   );
-  app.use('/api/search', createSearchRouter(externalPaperSearch));
+  app.use('/api/search', createSearchRouter(
+    externalPaperSearch,
+    new PaperSearchService(dependencies.paperRepository, externalPaperSearch),
+  ));
   app.use('/api/papers', createPaperRouter(new PaperService(dependencies.paperRepository)));
 
   app.get('/api/health', (_request, response) => {
