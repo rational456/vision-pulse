@@ -19,7 +19,7 @@
 |---|---|---|
 | M1 | 工程骨架和规范 | 前后端均可启动，检查命令通过 |
 | M2 | 数据库和论文管理 | CRUD、分页和筛选接口可用 |
-| M3 | 数据获取和导入 | 本地优先、DBLP 兜底和 CSV 导入可用 |
+| M3 | 数据获取和导入 | 本地优先、OpenAlex/DBLP 降级查询和 CSV 导入可用 |
 | M4 | 热词分析 | Top 10、图谱和趋势接口通过测试 |
 | M5 | 完整前端 | 六个页面和五项基础功能可操作 |
 | M6 | 测试与部署 | 生产构建、华为云部署和持久化通过验收 |
@@ -198,12 +198,13 @@ server/src/scripts/seed.test.ts
 
 建议 commit：`feat(data): add reproducible conference paper seed pipeline`
 
-### 任务 8：实现 DBLP 查询与降级
+### 任务 8：实现 OpenAlex/DBLP 查询与降级
 
 计划文件：
 
 ```text
 server/src/integrations/dblp/
+server/src/integrations/openalex/
 server/src/modules/search/
 server/src/modules/search/search.test.ts
 ```
@@ -212,18 +213,18 @@ server/src/modules/search/search.test.ts
 
 - 定义外部数据客户端接口，便于测试时替换为 Mock。
 - 本地数据库优先查询。
-- 本地无结果时查询 DBLP，并将结果转换为统一论文结构。
+- 本地无结果时查询 OpenAlex，并在 DBLP 可用时合并书目信息，再转换为统一论文结构。
 - 加入超时、无结果、返回格式异常和网络错误处理。
 - 外部结果只返回候选项，不自动写入数据库。
 
 验收：
 
-- 本地命中时不调用 DBLP。
-- DBLP 失败时仍返回安全、明确的错误响应。
+- 本地命中时不调用外部数据源。
+- 单个数据源失败时返回可用候选项和警告；全部数据源失败时返回安全、明确的错误响应。
 - Mock 测试不依赖真实网络。
 
-建议 commit：`test(server): cover local-first and DBLP fallback search`  
-建议 commit：`feat(server): add DBLP fallback search`
+建议 commit：`test(server): cover resilient external paper search`
+建议 commit：`feat(server): add OpenAlex and DBLP paper search`
 
 ### 任务 9：实现 CSV 批量导入
 
@@ -368,7 +369,7 @@ web/src/components/import/
 操作：
 
 - 实现本地优先的论文检索。
-- 展示 DBLP 候选结果并提供确认保存操作。
+- 展示 OpenAlex/DBLP 候选结果并提供确认保存操作。
 - 提供 CSV 模板说明、文件选择和导入结果展示。
 - 清晰展示部分成功的失败行及原因。
 
@@ -458,7 +459,7 @@ web/src/content/
 - 使用干净数据库执行种子导入。
 - 按五项基础功能逐项人工验收。
 - 测试服务重启后的数据库持久性。
-- 测试 DBLP 不可用、CSV 错误和无数据图表。
+- 测试 OpenAlex/DBLP 不可用、CSV 错误和无数据图表。
 - 保存至少一个有代表性的 AI 调试案例。
 
 验收：
@@ -546,8 +547,8 @@ DEPLOYMENT.md
 7. `test(server): add paper API contract tests`
 8. `feat(server): implement paper management API`
 9. `feat(data): add reproducible conference paper seed pipeline`
-10. `test(server): cover local-first and DBLP fallback search`
-11. `feat(server): add DBLP fallback search`
+10. `test(server): cover resilient external paper search`
+11. `feat(server): add OpenAlex and DBLP paper search`
 12. `test(server): define CSV import validation cases`
 13. `feat(server): implement partial-success CSV import`
 14. `test(analysis): specify keyword normalization rules`
@@ -587,7 +588,7 @@ DEPLOYMENT.md
 
 | 风险 | 应对措施 |
 |---|---|
-| DBLP 结果缺少摘要或关键词 | 使用预置数据保证分析；外部结果明确显示缺失字段，不编造内容 |
+| DBLP 结果缺少摘要或主题，且可能触发反爬验证 | 由 OpenAlex 提供内容字段，DBLP 仅作可选书目校对；使用预置数据保证分析，不编造缺失内容 |
 | 公开数据规模过大 | 先选定有限年份和必要字段，提供可重复的数据导入流程 |
 | 图谱节点过多导致卡顿 | 限制 Top N 节点和最低共现次数，筛选后再渲染 |
 | 趋势动画状态混乱 | 将动画控制封装为独立组件，切换条件时先清理旧定时器 |

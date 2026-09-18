@@ -20,3 +20,29 @@ export interface HealthStatus {
   service: 'top-conference-hotwords-api';
   timestamp: string;
 }
+
+export type Conference = 'CVPR' | 'ICCV' | 'ECCV';
+
+export type PaperSource =
+  | 'dblp'
+  | 'openalex'
+  | 'dblp+openalex';
+
+export interface ExternalPaperCandidate {
+  externalId: string;
+  title: string;
+  authors: string[];
+  conference: Conference | null;
+  venue: string | null;
+  year: number | null;
+  abstract: string | null;
+  keywords: string[];
+  paperUrl: string;
+  doi: string | null;
+  source: PaperSource;
+}
+
+export interface ExternalPaperSearchResult {
+  items: ExternalPaperCandidate[];
+  warnings: string[];
+}
