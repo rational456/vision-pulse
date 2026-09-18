@@ -4,18 +4,26 @@ import { DblpClient } from './integrations/dblp/dblp.client.js';
 import { OpenAlexClient } from './integrations/openalex/openalex.client.js';
 import { ExternalPaperSearchService } from './modules/search/external-paper-search.service.js';
 import { createSearchRouter } from './modules/search/search.routes.js';
+import { PaperRepository } from './modules/paper/paper.repository.js';
+import { createPaperRouter } from './modules/paper/paper.routes.js';
+import { PaperService } from './modules/paper/paper.service.js';
 
-export function createApp() {
+interface AppDependencies {
+  paperRepository: PaperRepository;
+  externalPaperSearch?: ExternalPaperSearchService;
+}
+
+export function createApp(dependencies: AppDependencies) {
   const app = express();
 
   app.disable('x-powered-by');
   app.use(express.json({ limit: '1mb' }));
 
-  const externalPaperSearch = new ExternalPaperSearchService(
-    new DblpClient(),
-    new OpenAlexClient(),
+  const externalPaperSearch = dependencies.externalPaperSearch ?? new ExternalPaperSearchService(
+    new DblpClient(), new OpenAlexClient(),
   );
   app.use('/api/search', createSearchRouter(externalPaperSearch));
+  app.use('/api/papers', createPaperRouter(new PaperService(dependencies.paperRepository)));
 
   app.get('/api/health', (_request, response) => {
     const payload: ApiSuccess<HealthStatus> = {
