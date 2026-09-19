@@ -82,6 +82,17 @@ export function createPaperRouter(service: PaperService): Router {
     response.json(payload);
   });
 
+  router.get('/:id/related', (request, response) => {
+    const id = parseId(request.params.id);
+    const limit = request.query.limit === undefined ? 5 : Number(request.query.limit);
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 20) {
+      throw new PaperValidationError('limit 必须是 1 到 20 之间的整数');
+    }
+    const data = service.related(id, limit);
+    const payload: ApiSuccess<Paper[]> = { success: true, data, message: '查询成功' };
+    response.json(payload);
+  });
+
   router.post('/', (request, response) => {
     const data = service.create(request.body);
     const payload: ApiSuccess<Paper> = { success: true, data, message: '论文创建成功' };

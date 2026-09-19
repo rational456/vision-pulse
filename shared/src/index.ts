@@ -46,3 +46,37 @@ export interface ExternalPaperSearchResult {
   items: ExternalPaperCandidate[];
   warnings: string[];
 }
+
+export interface KeywordStat {
+  keyword: string;
+  paperCount: number;
+  heat: number;
+}
+
+export interface KeywordGraph {
+  totalPapers: number;
+  nodes: KeywordStat[];
+  edges: Array<{ source: string; target: string; cooccurrence: number }>;
+}
+
+export interface TrendPoint {
+  conference: Conference;
+  year: number;
+  keyword: string;
+  paperCount: number;
+  totalPapers: number;
+  heat: number;
+}
+
+export interface TrendFrame {
+  conference: Conference;
+  year: number;
+  totalPapers: number;
+  ranking: KeywordStat[];
+}
+
+export interface AnalysisOverview {
+  totalPapers: number;
+  conferenceCounts: Array<{ conference: Conference; paperCount: number }>;
+  years: number[];
+}

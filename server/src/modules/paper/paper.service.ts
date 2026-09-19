@@ -7,6 +7,7 @@ import type {
   PaperPage,
   UpdatePaperInput,
 } from './paper.types.js';
+import { keywordsForPaper, normalizeKeyword } from '../analysis/keywords.js';
 
 export class PaperValidationError extends Error {
   constructor(message: string, readonly details: unknown = null) {
@@ -178,7 +179,68 @@ export class PaperService {
     if (!this.repository.delete(id)) throw new PaperNotFoundError();
   }
 
+  related(id: number, limit = 5): Paper[] {
+    const reference = this.getById(id);
+    const referenceKeywords = new Set(keywordsForPaper(reference));
+    const candidates: Array<{ paper: Paper; score: number }> = [];
+    let scanPage = 1;
+    let scanned = 0;
+    let total = 0;
+    do {
+      const batch = this.repository.list({ page: scanPage, pageSize: 100 });
+      total = batch.total;
+      if (batch.items.length === 0) break;
+      scanned += batch.items.length;
+      for (const paper of batch.items) {
+        if (paper.id === id) continue;
+        const score = keywordsForPaper(paper)
+          .filter((keyword) => referenceKeywords.has(keyword)).length;
+        if (score > 0) candidates.push({ paper, score });
+      }
+      scanPage += 1;
+    } while (scanned < total);
+
+    return candidates
+      .sort((left, right) => right.score - left.score ||
+        (right.paper.year ?? 0) - (left.paper.year ?? 0) ||
+        left.paper.title.localeCompare(right.paper.title))
+      .slice(0, Math.min(Math.max(limit, 1), 20))
+      .map(({ paper }) => paper);
+  }
+
   list(filters: PaperFilters): PaperPage {
-    return this.repository.list(filters);
+    if (!filters.keyword) return this.repository.list(filters);
+
+    const { keyword, ...otherFilters } = filters;
+    const query = normalizeKeyword(keyword);
+    const page = Number.isInteger(filters.page) && (filters.page ?? 0) > 0 ? filters.page as number : 1;
+    const pageSize = Number.isInteger(filters.pageSize) && (filters.pageSize ?? 0) > 0
+      ? Math.min(filters.pageSize as number, 100) : 20;
+    if (!query) return { items: [], total: 0, page, pageSize };
+
+    const matching: Paper[] = [];
+    let scanPage = 1;
+    let scanned = 0;
+    let total = 0;
+    do {
+      const batch = this.repository.list({
+        ...otherFilters,
+        page: scanPage,
+        pageSize: 100,
+      });
+      total = batch.total;
+      if (batch.items.length === 0) break;
+      scanned += batch.items.length;
+      matching.push(...batch.items.filter((paper) =>
+        keywordsForPaper(paper).some((value) => value.includes(query))));
+      scanPage += 1;
+    } while (scanned < total);
+
+    return {
+      items: matching.slice((page - 1) * pageSize, page * pageSize),
+      total: matching.length,
+      page,
+      pageSize,
+    };
   }
 }

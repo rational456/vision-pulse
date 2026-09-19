@@ -92,4 +92,33 @@ describe('paper API', () => {
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe('INVALID_INPUT');
   });
+
+  it('finds derived keywords when the source paper has no keyword field', async () => {
+    const first = await request(app).post('/api/papers').send({
+      title: 'Open Vocabulary Object Detection for Street Scenes',
+      abstract: 'We study object detection in complex environments.',
+      keywords: [],
+      conference: 'CVPR',
+      year: 2024,
+      paperUrl: 'https://example.com/derived',
+      source: 'manual',
+    });
+    await request(app).post('/api/papers').send({
+      title: 'Another Object Detection Method',
+      keywords: ['Object Detection'],
+      conference: 'ICCV',
+      year: 2023,
+      paperUrl: 'https://example.com/related',
+      source: 'manual',
+    });
+
+    const response = await request(app).get('/api/papers')
+      .query({ keyword: 'object detection' });
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(2);
+
+    const related = await request(app).get(`/api/papers/${first.body.data.id}/related`);
+    expect(related.status).toBe(200);
+    expect(related.body.data).toHaveLength(1);
+  });
 });

@@ -8,6 +8,9 @@
   },
   "scripts": {
     "dev": "pnpm --parallel --filter @hotwords/web --filter @hotwords/server dev",
+    "db:init": "pnpm --filter @hotwords/server db:init",
+    "db:seed": "pnpm --filter @hotwords/server db:seed",
+    "db:collect": "pnpm --filter @hotwords/server db:collect",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test"
