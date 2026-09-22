@@ -1,6 +1,6 @@
 # 软件工程实践第二次作业——与 AI 结对完成顶会热词统计平台
 
-> 本文为发布前初稿。文中出现的 **【待补充】**、**【待截图】** 需要在最终发布到 CSDN 前替换或删除。
+> 本文工程内容已按最终本地版本更新。标记为 **【待截图】** 的位置需要在发布到 CSDN 前插入对应图片；云端部署暂缓，不虚构公网地址和公网测试结果。
 
 ## 作业信息
 
@@ -15,7 +15,7 @@
 | 代码规范 | [codestyle.md](../codestyle.md) |
 | Figma 设计稿 | [软件工程实践原型设计](https://www.figma.com/design/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=0-1&t=Ks4WTe5RqD47CL35-1) |
 | Figma 交互原型 | [可交互原型](https://www.figma.com/proto/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=20-2&p=f&t=WLYGV7D1MSgvEdQj-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=20%3A2&show-proto-sidebar=1) |
-| 云端部署 | 【待补充华为云访问地址】 |
+| 云端部署 | 暂缓；已完成 Docker 配置与本地生产模式验证 |
 | AI 工具 | OpenAI Codex 桌面端（基于 GPT-5） |
 
 ## 目录
@@ -158,7 +158,7 @@ CVPR、ICCV 和 ECCV 是计算机视觉领域具有代表性的国际会议。�
 
 ### 3.5 D（Delivery，推广与交付）
 
-项目通过华为云 CodeArts 管理代码，并部署到华为云供直接访问。博客将提供项目地址、原型链接、在线体验地址、运行截图和使用说明。演示时重点展示“热词动画—跨会议比较—论文详情—CSV 导入”的完整流程。
+项目通过华为云 CodeArts 管理代码，并准备了 Docker 生产部署方案。由于当前暂缓购买云服务器，博客先提供仓库地址、原型链接、本地运行截图和使用说明；完成云端部署后再补充在线体验地址。演示时重点展示“热词动画—跨会议比较—论文详情—CSV 导入”的完整流程。
 
 ---
 
@@ -838,13 +838,15 @@ pnpm build
 
 | 检查项 | 实际结果 | 结论 |
 | --- | --- | --- |
-| `pnpm test` | 服务端 15 个测试文件、40 个测试全部通过；共享包和前端目前没有测试文件 | 通过，但前端自动化覆盖仍需补充 |
+| `pnpm test` | 服务端 16 个测试文件、44 个测试全部通过；共享包和前端目前没有测试文件 | 通过，但前端自动化覆盖仍可补充 |
 | `pnpm typecheck` | shared、server、web 均通过严格类型检查 | 通过 |
 | `pnpm build` | shared、server、web 均成功构建 | 通过 |
+| 人工前端验收 | 35 项检查中 33 项通过；2 项因当前网络无法访问 OpenAlex/DBLP 而显示预期的友好错误提示 | 本地功能通过，外部源需在不同网络环境复验 |
+| 生产模式冒烟测试 | `/api/health`、首页、详情路由刷新均正常，未知 API 返回 JSON 404 | 通过 |
 
 Vite 构建时提示部分产物压缩后超过 500 kB。它不会导致构建失败，也不影响当前课程项目运行，但说明 Element Plus、ECharts 等依赖形成的公共包仍可进一步拆分。后续可通过手动分包或按需加载降低首屏资源体积。本文不把该警告描述成“完全没有问题”，而是将其作为性能改进项保留。
 
-当前自动化测试主要集中在后端业务规则和 API。前端已经通过类型检查和生产构建，但尚未配置组件测试或端到端测试，因此最终验收还需要人工完成导航、筛选、表单、删除确认、CSV 拖放、趋势动画和响应式布局检查。
+当前自动化测试主要集中在后端业务规则和 API。前端已经通过类型检查、生产构建和 35 项人工验收，覆盖导航、筛选、表单、删除确认、CSV 导入、趋势图表与移动端布局。前端尚未配置组件测试或端到端测试，这是后续仍可完善的工程项。
 
 ### 8.2 CSV 验收数据设计
 
@@ -903,7 +905,7 @@ Invalid URL Paper,ECCV,2024,not-a-url,Author D,Segmentation
 2. 将大任务拆成可以验证的小步骤；
 3. 要求 AI 在修改后运行测试、类型检查和构建；
 4. 对视觉结果逐页与 Figma 对比，由我指出差异并决定修改方向；
-5. Git 提交必须得到我的逐次许可，避免一次提交过多无关内容；
+5. 前期由我逐次确认 Git 提交，收尾阶段在我明确授权后按已验证的独立工作单元提交；
 6. 对外部数据和作业规则要求给出来源，不让 AI 凭印象补全。
 
 本次结对中双方的职责划分如下：
@@ -915,7 +917,7 @@ Invalid URL Paper,ECCV,2024,not-a-url,Author D,Segmentation
 | 架构设计 | 比较模块划分和数据流方案 | 选择本地优先、单体应用等最终方案 |
 | 编码 | 生成局部实现、测试和修改建议 | 审查代码、运行项目、决定是否接受 |
 | 调试 | 根据日志和截图提出原因假设 | 提供真实复现条件并验证修改结果 |
-| Git | 汇总适合提交的独立改动 | 每次明确授权是否允许提交 |
+| Git | 汇总适合提交的独立改动并核对测试结果 | 前期逐次授权，收尾阶段确认整体规则与发布范围 |
 | 博客 | 整理结构和可核实的工程事实 | 提供个人时间、截图、感受和最终表述 |
 
 我把 AI 输出视为“需要验证的结对伙伴建议”，而不是天然正确的最终答案。功能修改至少要经过代码差异检查和相关测试；视觉修改则需要在真实浏览器尺寸和真实论文数据下复核。
@@ -1032,9 +1034,11 @@ AI 在任务拆分、生成重复性代码、补充边界测试和解释技术�
 
 开发分支为 `dev`。提交按文档、工程骨架、数据库、论文仓储、管理 API、检索、数据初始化与分析、可靠性修复、前端页面等阶段逐步进行，避免把所有代码集中在一次提交中。
 
-当前已完成的代表提交包括：
+在本次博客事实校正提交之前，共完成 24 次有效提交，完整记录如下：
 
 ```text
+0b71dc5 Add README.md
+33bf768 chore: add repository ignore rules
 fb225ac docs: add approved design and implementation plan
 8f7aca0 chore: scaffold TypeScript web and server workspaces
 370f9c2 feat(server): add resilient external paper search
@@ -1044,9 +1048,22 @@ d734fd6 feat(server): implement paper management API
 b8a22d8 feat(server): add local-first paper search
 06c0717 feat(server): add official seed data, CSV import and analysis APIs
 c6cbd27 fix(server): harden external paper requests
+5e363b7 fix(server): derive keywords for paper responses
+ca91c08 docs: add project code style guide
+511b825 docs: add project report draft
+76e14a4 docs: complete PSP time analysis
+c3aed53 docs: update report links and completion status
+d79136b docs: link CodeArts repository page
+579f99e docs: add trend chart prototype assets
+aa7bd5b feat(web): implement complete conference insights frontend
+37b322c docs: design Flexus production release
+d11abc3 docs: plan Flexus production release
+d3e5714 feat(server): serve production web build
+71f8a29 chore(deploy): add Flexus Docker packaging
+e64065d docs: finalize project README and deployment guide
 ```
 
-【待补充：达到 15 次以上有效提交后的完整提交截图】
+【待截图：CodeArts 或本地 Git 的完整提交记录】
 
 ### 10.3 本地运行
 
@@ -1062,7 +1079,7 @@ pnpm dev
 
 ### 10.4 华为云部署
 
-当前本地开发环境由 Vite 在 `5173` 端口提供前端页面，并把 `/api` 代理到 `3000` 端口的 Express 服务。这一配置只适用于开发阶段，不能直接当作生产部署结果。生产环境需要先完成以下闭环：
+开发环境由 Vite 在 `5173` 端口提供前端页面，并把 `/api` 代理到 `3000` 端口的 Express 服务。生产版本已经改为由同一个 Express 进程提供 `/api/*`、`web/dist` 静态资源和 Vue Router 回退页面，避免依赖 Vite 开发服务器：
 
 ```text
 浏览器
@@ -1074,14 +1091,17 @@ pnpm dev
                      SQLite 数据库文件
 ```
 
-部署前的构建与初始化命令为：
+仓库根目录提供了 `Dockerfile` 和 `.dockerignore`。镜像基于 Node.js 24，构建时安装锁定依赖并执行生产构建，启动时幂等初始化数据库。部署命令为：
 
-```powershell
-pnpm install --frozen-lockfile
-pnpm db:seed
-pnpm typecheck
-pnpm test
-pnpm build
+```bash
+docker build -t vision-pulse:1.0.0 .
+sudo mkdir -p /opt/vision-pulse/data
+docker run -d \
+  --name vision-pulse \
+  --restart unless-stopped \
+  -p 80:3000 \
+  -v /opt/vision-pulse/data:/data \
+  vision-pulse:1.0.0
 ```
 
 需要配置的运行参数包括：
@@ -1089,21 +1109,21 @@ pnpm build
 | 配置 | 作用 | 注意事项 |
 | --- | --- | --- |
 | `PORT` | Express 监听端口，默认 3000 | 与反向代理目标保持一致 |
-| `DATABASE_PATH` | SQLite 数据库文件位置 | 放在持久化且可写目录，不提交数据库文件 |
-| 前端静态资源目录 | Vue 构建产物 `web/dist` | 需要由 Web 服务器或 Express 提供 |
-| `/api` 转发规则 | 让前端使用同源相对地址访问 API | 避免生产环境继续依赖 Vite 开发代理 |
+| `DATABASE_PATH` | SQLite 数据库文件位置 | 容器内固定为 `/data/hotwords.sqlite`，宿主机挂载持久化目录 |
+| `WEB_DIST_PATH` | Vue 生产构建目录 | 镜像内固定为 `/app/web/dist`，由 Express 提供 |
+| `/api` 路由优先级 | 保证未知 API 返回 JSON 404 | 必须注册在前端 SPA 回退之前 |
 
-部署完成后的验收不能只检查首页，应依次验证：健康检查、六个页面直接访问与刷新、论文筛选、详情页、增删改、CSV 导入、趋势动画、外部检索失败提示，以及服务重启后的 SQLite 数据是否仍然存在。
+本机未安装 Docker，因此没有虚构镜像构建结果；但已经使用与容器一致的生产环境变量完成等价启动验证：健康接口、首页和详情路由均返回 200，未知 API 返回 JSON 404，44 项自动化测试、类型检查和生产构建全部通过。
 
-【待补充：实际使用的华为云服务、生产静态资源方案、环境变量、访问 URL 和部署结果】
+华为云服务器部署按当前安排暂缓。恢复部署后还需要验证：六个页面直接访问与刷新、论文筛选、详情页、增删改、CSV 导入、趋势动画、外部检索失败提示，以及服务重启后的 SQLite 数据是否仍然存在。公网地址和公网测试结果只能在实际完成后补充。
 
 发布前还需要完成：
 
 1. 将 `dev` 合并到 `main`；
 2. 在 CodeArts 创建 `1.0.0` Release；
-3. 更新 README 的项目说明、作业链接、数据来源和 AI 使用说明；
-4. 通过公网地址检查全部页面和接口；
-5. 确认仓库、Figma 原型和博客中的链接均可访问。
+3. 通过公网地址检查全部页面和接口（部署恢复后）；
+4. 确认仓库、Figma 原型和博客中的链接均可访问；
+5. 插入博客所需的真实截图和 AI 对话记录。
 
 ---
 
@@ -1111,7 +1131,7 @@ pnpm build
 
 ### 11.1 项目收获
 
-这次作业让我完整经历了从需求分析、原型设计到前后端开发、数据库建模、测试和部署的过程。相比只实现单一页面，这个项目更考验模块之间的衔接：统计结果依赖数据清洗，前端展示依赖接口结构，真实数据又会反过来暴露原型中的固定尺寸问题。
+这次作业让我完整经历了从需求分析、原型设计到前后端开发、数据库建模、测试和生产部署准备的过程。相比只实现单一页面，这个项目更考验模块之间的衔接：统计结果依赖数据清洗，前端展示依赖接口结构，真实数据又会反过来暴露原型中的固定尺寸问题。
 
 我对以下内容有了更具体的理解：
 
@@ -1127,7 +1147,7 @@ AI 显著提高了信息整理、方案比较和编码迭代速度，但高质�
 
 对我而言，最明显的一次体会来自前端设计还原。最初生成的部分页面虽然功能结构完整，但颜色、间距、弹窗和图表风格与我的 Figma 设计差距较大。我没有因为页面“能运行”就接受，而是逐项指出不一致的位置，坚持以自己的设计为主，只允许在响应式布局、长文本和错误状态上做合理优化。之后真实论文的长标题和作者列表又证明，设计还原也不能机械复制固定画布，必须在视觉一致性和真实数据适配之间取平衡。
 
-另一个重要体会是控制变更范围。我要求 AI 每次 Git 提交前都先获得许可，并把修改拆成可以单独说明和验证的小组。这样做虽然比一次提交全部文件慢，却让我更清楚每一步改变了什么，也能在出现问题时快速定位。AI 提高了实现速度，但需求取舍、设计判断、测试验收和最终责任仍然属于开发者。
+另一个重要体会是控制变更范围。前期我要求 AI 在每次 Git 提交前获得许可；收尾阶段在我明确授权后，仍按能够单独说明和验证的工作单元提交。这样比一次提交全部文件更容易看清每一步改变了什么，也能在出现问题时快速定位。AI 提高了实现速度，但需求取舍、设计判断、测试验收和最终责任仍然属于开发者。
 
 ---
 
@@ -1143,7 +1163,7 @@ AI 显著提高了信息整理、方案比较和编码迭代速度，但高质�
 - [x] 三个 AI 协作代表案例框架
 - [x] 填写 PSP 预估和实际时间
 - [x] 补充 CodeArts 仓库地址
-- [ ] 补充华为云部署地址
+- [ ] 补充华为云部署地址（当前暂缓）
 - [x] 补充 AI 工具和模型说明
 - [ ] 插入至少 10 张截图或 GIF
 - [x] 补充约 300 行关键代码及逐段解释
@@ -1153,12 +1173,12 @@ AI 显著提高了信息整理、方案比较和编码迭代速度，但高质�
 ### 工程与仓库
 
 - [x] 达到 15 次以上真实、合理的提交
-- [x] 后端 15 个测试文件、40 项自动化测试通过
-- [ ] 补充前端组件或端到端测试，或完成完整人工验收
+- [x] 后端 16 个测试文件、44 项自动化测试通过
+- [x] 完成 35 项前端人工验收，并记录 2 项外部网络限制
 - [x] 类型检查通过
 - [x] 生产构建通过（存在分包体积警告）
-- [ ] README 更新完成
+- [x] README 更新完成
 - [ ] `dev` 合并到 `main`
 - [ ] 创建 Release 1.0.0
-- [ ] 华为云部署并完成公网验收
+- [ ] 华为云部署并完成公网验收（当前暂缓）
 - [ ] 检查仓库、原型、部署和博客链接权限
