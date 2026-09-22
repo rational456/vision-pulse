@@ -1,6 +1,6 @@
 # 软件工程实践第二次作业——与 AI 结对完成顶会热词统计平台
 
-> 本文工程内容、运行截图、测试结果和 CodeArts 发布记录均按最终本地版本整理；云端部署暂缓，不虚构公网地址和公网测试结果。
+> 本文工程内容、运行截图、测试结果和 CodeArts 发布记录均按最终版本整理；项目已通过 Render 完成公网部署，文中链接和验证结果均来自实际运行环境。
 
 ## 作业信息
 
@@ -22,7 +22,7 @@
 | Figma 设计稿 | [软件工程实践原型设计](https://www.figma.com/design/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=0-1&t=Ks4WTe5RqD47CL35-1) |
 | Figma 交互原型 | [可交互原型](https://www.figma.com/proto/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=20-2&p=f&t=WLYGV7D1MSgvEdQj-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=20%3A2&show-proto-sidebar=1) |
 | AI 编程助手 | OpenAI Codex 桌面端（基于 GPT-5），主要用于需求梳理、方案讨论、局部代码实现、测试设计、问题定位和文档整理 |
-| 云端部署 | 暂缓；已完成 Docker 配置与本地生产模式验证 |
+| 云端部署 | [Render 公网站点](https://vision-pulse-vbvs.onrender.com)；[API 健康检查](https://vision-pulse-vbvs.onrender.com/api/health) |
 
 ## 目录
 
@@ -163,7 +163,7 @@ CVPR、ICCV 和 ECCV 是计算机视觉领域具有代表性的国际会议。�
 
 ### 3.5 D（Delivery，推广与交付）
 
-项目通过华为云 CodeArts 管理代码，并准备了 Docker 生产部署方案。由于当前暂缓购买云服务器，博客先提供仓库地址、原型链接、本地运行截图和使用说明；完成云端部署后再补充在线体验地址。演示时重点展示“热词动画—跨会议比较—论文详情—CSV 导入”的完整流程。
+项目通过华为云 CodeArts 管理代码，并使用 Docker 生产方案部署到 Render。公网版可直接展示“热词动画—跨会议比较—论文详情—CSV 导入”的完整流程，同时保留 Figma 原型、本地截图和 CodeArts 提交记录作为开发过程证据。
 
 ---
 
@@ -1232,14 +1232,14 @@ pnpm dev
 
 后端默认运行在 `http://localhost:3000`，可以先访问 `/api/health` 检查服务状态。
 
-### 10.4 华为云部署
+### 10.4 Render 公网部署
 
 开发环境由 Vite 在 `5173` 端口提供前端页面，并把 `/api` 代理到 `3000` 端口的 Express 服务。生产版本已经改为由同一个 Express 进程提供 `/api/*`、`web/dist` 静态资源和 Vue Router 回退页面，避免依赖 Vite 开发服务器：
 
 ```text
 浏览器
    ↓ HTTP/HTTPS
-华为云公网入口
+Render HTTPS 公网入口
    ├─ /、/assets/*  → Vue 生产构建产物
    └─ /api/*        → Express API
                          ↓
@@ -1268,16 +1268,29 @@ docker run -d \
 | `WEB_DIST_PATH` | Vue 生产构建目录 | 镜像内固定为 `/app/web/dist`，由 Express 提供 |
 | `/api` 路由优先级 | 保证未知 API 返回 JSON 404 | 必须注册在前端 SPA 回退之前 |
 
-本机未安装 Docker，因此没有虚构镜像构建结果；但已经使用与容器一致的生产环境变量完成等价启动验证：健康接口、首页和详情路由均返回 200，未知 API 返回 JSON 404，46 项自动化测试、类型检查和生产构建全部通过。
+为保留 CodeArts 中的课程协作记录，CodeArts 仍作为主仓库；同时将已合并的 `main` 镜像到 GitHub，供 Render 拉取公开代码。Render 识别仓库根目录的 `Dockerfile`，使用 `main` 分支构建，并将容器的 `3000` 端口映射到 HTTPS 公网域名。
 
-华为云服务器部署按当前安排暂缓。恢复部署后还需要验证：六个页面直接访问与刷新、论文筛选、详情页、增删改、CSV 导入、趋势动画、外部检索失败提示，以及服务重启后的 SQLite 数据是否仍然存在。公网地址和公网测试结果只能在实际完成后补充。
+- 公网站点：<https://vision-pulse-vbvs.onrender.com>
+- 健康检查：<https://vision-pulse-vbvs.onrender.com/api/health>
+- 部署结果：首页正常展示 60 篇种子论文、会议分布、热词 Top 10 和关联图谱
+- 健康结果：返回 `success: true`、`status: ok` 和“服务运行正常”
+
+![Render 公网首页](images/blog/render-production-home.png)
+
+*图 30　Render 免费 Web Service 上实际运行的 Vision Pulse 首页*
+
+![Render 健康检查](images/blog/render-health-check.png)
+
+*图 31　公网 `/api/health` 接口返回服务正常*
+
+Render 免费实例在闲置后会休眠，首次唤醒可能需要约 50 秒；同时不提供持久化磁盘。因此该环境适合课程验收和轻量演示，重部署或实例重置时会由启动脚本重建 60 篇演示数据，不用于长期保存用户数据。
 
 当前发布状态如下：
 
 1. 已将 `dev` 合并到 `main`；
 2. 已在 CodeArts 创建 `1.0.0` 标签，作为当前版本发布标记；
 3. 已完成本地自动化测试、类型检查、生产构建和主要功能截图；
-4. 恢复云端部署后，再通过公网地址检查全部页面和接口；
+4. 已通过 Render 公网地址检查首页和健康接口；
 5. 发布博客前还需确认仓库、Figma 原型和博客链接的访问权限。
 
 ---
