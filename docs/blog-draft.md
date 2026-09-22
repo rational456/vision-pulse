@@ -11,7 +11,7 @@
 | 作业要求 | [软件工程实践第二次作业要求](https://bbs.csdn.net/topics/620526318) |
 | 学号 | 102400328 |
 | 项目名称 | 视界脉冲（Vision Pulse）——计算机视觉顶会热词统计平台 |
-| CodeArts 仓库 | [102400328 项目仓库](https://codehub.devcloud.cn-north-4.huaweicloud.com/cc8f24d1c344473688f742c7a429d0b7/102400328.git) |
+| CodeArts 仓库 | [102400328 项目仓库浏览器页面](https://devcloud.cn-north-4.huaweicloud.com/codehub/project/cc8f24d1c344473688f742c7a429d0b7/codehub/3087813/repo) |
 | 代码规范 | [codestyle.md](../codestyle.md) |
 | Figma 设计稿 | [软件工程实践原型设计](https://www.figma.com/design/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=0-1&t=Ks4WTe5RqD47CL35-1) |
 | Figma 交互原型 | [可交互原型](https://www.figma.com/proto/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=20-2&p=f&t=WLYGV7D1MSgvEdQj-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=20%3A2&show-proto-sidebar=1) |
