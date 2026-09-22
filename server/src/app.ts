@@ -1,5 +1,7 @@
 import express from 'express';
 import type { ErrorRequestHandler } from 'express';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import type { ApiFailure, ApiSuccess, HealthStatus } from '@hotwords/shared';
 import { DblpClient } from './integrations/dblp/dblp.client.js';
 import { OpenAlexClient } from './integrations/openalex/openalex.client.js';
@@ -19,6 +21,7 @@ interface AppDependencies {
   analysisService?: AnalysisService;
   csvImportService?: CsvImportService;
   externalPaperSearch?: ExternalPaperSearchService;
+  webDistPath?: string;
 }
 
 export function createApp(dependencies: AppDependencies) {
@@ -56,6 +59,34 @@ export function createApp(dependencies: AppDependencies) {
 
     response.json(payload);
   });
+
+  app.use('/api', (_request, response) => {
+    const payload: ApiFailure = {
+      success: false,
+      error: {
+        code: 'NOT_FOUND',
+        message: '接口不存在',
+        details: null,
+      },
+    };
+
+    response.status(404).json(payload);
+  });
+
+  const indexPath = dependencies.webDistPath
+    ? join(dependencies.webDistPath, 'index.html')
+    : undefined;
+  if (dependencies.webDistPath && indexPath && existsSync(indexPath)) {
+    app.use(express.static(dependencies.webDistPath));
+    app.use((request, response, next) => {
+      if (request.method !== 'GET' || !request.accepts('html')) {
+        next();
+        return;
+      }
+
+      response.sendFile(indexPath);
+    });
+  }
 
   const errorHandler: ErrorRequestHandler = (error: unknown, _request, response, _next) => {
     const status = typeof error === 'object' && error !== null && 'status' in error
