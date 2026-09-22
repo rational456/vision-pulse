@@ -11,7 +11,7 @@
 | 作业要求 | [软件工程实践第二次作业要求](https://bbs.csdn.net/topics/620526318) |
 | 学号 | 102400328 |
 | 项目名称 | 视界脉冲（Vision Pulse）——计算机视觉顶会热词统计平台 |
-| CodeArts 仓库 | 【待补充 CodeArts 网页访问地址；不要填写仅供 Git 使用的克隆地址】 |
+| CodeArts 仓库 | [102400328 项目仓库](https://codehub.devcloud.cn-north-4.huaweicloud.com/cc8f24d1c344473688f742c7a429d0b7/102400328.git) |
 | 代码规范 | [codestyle.md](../codestyle.md) |
 | Figma 设计稿 | [软件工程实践原型设计](https://www.figma.com/design/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=0-1&t=Ks4WTe5RqD47CL35-1) |
 | Figma 交互原型 | [可交互原型](https://www.figma.com/proto/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=20-2&p=f&t=WLYGV7D1MSgvEdQj-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=20%3A2&show-proto-sidebar=1) |
@@ -1142,20 +1142,21 @@ AI 显著提高了信息整理、方案比较和编码迭代速度，但高质�
 - [x] 系统架构和实现流程
 - [x] 三个 AI 协作代表案例框架
 - [x] 填写 PSP 预估和实际时间
-- [ ] 补充 CodeArts 网页地址
+- [x] 补充 CodeArts 仓库地址
 - [ ] 补充华为云部署地址
-- [ ] 补充 AI 具体模型版本
+- [x] 补充 AI 工具和模型说明
 - [ ] 插入至少 10 张截图或 GIF
-- [ ] 补充约 300 行关键代码及逐段解释
-- [ ] 插入完整测试结果
-- [ ] 将总结改成最终个人表述
+- [x] 补充约 300 行关键代码及逐段解释
+- [x] 插入完整测试结果说明
+- [x] 将总结改成最终个人表述
 
 ### 工程与仓库
 
-- [ ] 达到 15 次以上真实、合理的提交
-- [ ] 前后端测试全部通过
-- [ ] 类型检查通过
-- [ ] 生产构建通过
+- [x] 达到 15 次以上真实、合理的提交
+- [x] 后端 15 个测试文件、40 项自动化测试通过
+- [ ] 补充前端组件或端到端测试，或完成完整人工验收
+- [x] 类型检查通过
+- [x] 生产构建通过（存在分包体积警告）
 - [ ] README 更新完成
 - [ ] `dev` 合并到 `main`
 - [ ] 创建 Release 1.0.0
