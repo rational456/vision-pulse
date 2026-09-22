@@ -103,7 +103,10 @@ describe('paper API', () => {
       paperUrl: 'https://example.com/derived',
       source: 'manual',
     });
-    await request(app).post('/api/papers').send({
+    expect(first.status).toBe(201);
+    expect(first.body.data.keywords).toContain('object detection');
+
+    const second = await request(app).post('/api/papers').send({
       title: 'Another Object Detection Method',
       keywords: ['Object Detection'],
       conference: 'ICCV',
@@ -112,13 +115,22 @@ describe('paper API', () => {
       source: 'manual',
     });
 
+    const detail = await request(app).get(`/api/papers/${first.body.data.id}`);
+    expect(detail.status).toBe(200);
+    expect(detail.body.data.keywords).toContain('object detection');
+
     const response = await request(app).get('/api/papers')
       .query({ keyword: 'object detection' });
     expect(response.status).toBe(200);
     expect(response.body.data.total).toBe(2);
+    expect(response.body.data.items.find((paper: { id: number }) =>
+      paper.id === first.body.data.id).keywords).toContain('object detection');
+    expect(response.body.data.items.find((paper: { id: number }) =>
+      paper.id === second.body.data.id).keywords).toEqual(['Object Detection']);
 
     const related = await request(app).get(`/api/papers/${first.body.data.id}/related`);
     expect(related.status).toBe(200);
     expect(related.body.data).toHaveLength(1);
+    expect(related.body.data[0].keywords).toEqual(['Object Detection']);
   });
 });

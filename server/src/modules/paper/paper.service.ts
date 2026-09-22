@@ -143,12 +143,21 @@ function isUniqueConstraintError(error: unknown): boolean {
   return error instanceof Error && error.message.includes('UNIQUE constraint failed');
 }
 
+function withDerivedKeywords(paper: Paper): Paper {
+  if (paper.keywords.length > 0) return paper;
+  return { ...paper, keywords: keywordsForPaper(paper) };
+}
+
+function withDerivedKeywordPage(page: PaperPage): PaperPage {
+  return { ...page, items: page.items.map(withDerivedKeywords) };
+}
+
 export class PaperService {
   constructor(private readonly repository: PaperRepository) {}
 
   create(value: unknown): Paper {
     try {
-      return this.repository.create(normalizeInput(value, false));
+      return withDerivedKeywords(this.repository.create(normalizeInput(value, false)));
     } catch (error) {
       if (isUniqueConstraintError(error)) throw new DuplicatePaperError({ cause: error });
       throw error;
@@ -158,7 +167,7 @@ export class PaperService {
   getById(id: number): Paper {
     const paper = this.repository.getById(id);
     if (!paper) throw new PaperNotFoundError();
-    return paper;
+    return withDerivedKeywords(paper);
   }
 
   update(id: number, value: unknown): Paper {
@@ -168,7 +177,7 @@ export class PaperService {
     try {
       const paper = this.repository.update(id, normalizeInput(value, true));
       if (!paper) throw new PaperNotFoundError();
-      return paper;
+      return withDerivedKeywords(paper);
     } catch (error) {
       if (isUniqueConstraintError(error)) throw new DuplicatePaperError({ cause: error });
       throw error;
@@ -205,11 +214,11 @@ export class PaperService {
         (right.paper.year ?? 0) - (left.paper.year ?? 0) ||
         left.paper.title.localeCompare(right.paper.title))
       .slice(0, Math.min(Math.max(limit, 1), 20))
-      .map(({ paper }) => paper);
+      .map(({ paper }) => withDerivedKeywords(paper));
   }
 
   list(filters: PaperFilters): PaperPage {
-    if (!filters.keyword) return this.repository.list(filters);
+    if (!filters.keyword) return withDerivedKeywordPage(this.repository.list(filters));
 
     const { keyword, ...otherFilters } = filters;
     const query = normalizeKeyword(keyword);
@@ -237,7 +246,9 @@ export class PaperService {
     } while (scanned < total);
 
     return {
-      items: matching.slice((page - 1) * pageSize, page * pageSize),
+      items: matching
+        .slice((page - 1) * pageSize, page * pageSize)
+        .map(withDerivedKeywords),
       total: matching.length,
       page,
       pageSize,
