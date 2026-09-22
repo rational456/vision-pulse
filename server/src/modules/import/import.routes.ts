@@ -5,7 +5,7 @@ import { CsvImportError, CsvImportService, type ImportResult } from './csv-impor
 export function createImportRouter(service: CsvImportService): Router {
   const router = Router();
 
-  router.post('/csv', (request, response) => {
+  router.post('/csv', async (request, response) => {
     if (typeof request.body !== 'string') {
       response.status(415).json({
         success: false,
@@ -16,7 +16,7 @@ export function createImportRouter(service: CsvImportService): Router {
     const fileName = typeof request.headers['x-file-name'] === 'string'
       ? request.headers['x-file-name'].slice(0, 200)
       : 'upload.csv';
-    const data = service.importText(fileName, request.body);
+    const data = await service.importText(fileName, request.body);
     response.status(201).json({
       success: true,
       data,

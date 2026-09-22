@@ -24,7 +24,16 @@
 
 `POST /api/imports/csv`：请求头 `Content-Type: text/csv`，请求体直接放 CSV 文本，可选 `X-File-Name`。前端选择文件后读取文本并发送即可；当前接口不使用 `multipart/form-data`。上限 1 MB、500 条数据行，采用部分成功策略。响应含 `id`、总数、成功数、失败数及每个失败行的行号和原因；`GET /api/imports/:id` 可再次读取结果。
 
-表头至少包含 `title,conference,year,paperUrl`，可选 `externalId,abstract,keywords,authors,venue,doi`。`keywords` 和 `authors` 的多个值用竖线 `|` 分隔；含逗号、引号或换行的单元格遵循标准 CSV 引号规则。例如：
+表头最低只要求 `title`，可选 `conference,year,paperUrl,externalId,abstract,keywords,authors,venue,doi`。提供 `paperUrl` 时直接导入完整数据；缺少 `paperUrl` 时，服务按题目查询 OpenAlex/DBLP，仅在标题完全匹配且候选唯一时自动补全摘要、关键词、作者和原文链接。`conference`、`year` 可用于消除同名候选歧义；无精确候选、候选仍不唯一或外部服务失败时，该行进入失败明细，不影响其他合法行。外部查询最多并发 3 条，避免批量请求对第三方服务造成过大压力。
+
+仅包含题目、由系统自动补全的示例：
+
+```csv
+title,conference,year
+"Segment Anything",ICCV,2023
+```
+
+直接导入完整数据时，`keywords` 和 `authors` 的多个值用竖线 `|` 分隔；含逗号、引号或换行的单元格遵循标准 CSV 引号规则。例如：
 
 ```csv
 title,conference,year,paperUrl,keywords,abstract
