@@ -1,8 +1,14 @@
 import type { DatabaseSync } from 'node:sqlite';
+import type {
+  Conference,
+  ExternalPaperCandidate,
+  ExternalPaperSearchResult,
+} from '@hotwords/shared';
 import { PaperService } from '../paper/paper.service.js';
 import { CsvFormatError, parseCsv } from './csv.parser.js';
 
-const requiredColumns = ['title', 'conference', 'year', 'paperUrl'] as const;
+const requiredColumns = ['title'] as const;
+const conferences = new Set<Conference>(['CVPR', 'ICCV', 'ECCV']);
 const allowedColumns = new Set([
   'externalId', 'title', 'abstract', 'keywords', 'authors',
   'conference', 'venue', 'year', 'paperUrl', 'doi',
@@ -24,6 +30,10 @@ export interface ImportResult {
   failures: ImportFailure[];
 }
 
+export interface PaperMetadataSearch {
+  searchByTitle(title: string): Promise<ExternalPaperSearchResult>;
+}
+
 export class CsvImportError extends Error {
   constructor(message: string) {
     super(message);
@@ -40,13 +50,92 @@ function splitList(value: string | undefined): string[] {
   return value?.split('|').map((item) => item.trim()).filter(Boolean) ?? [];
 }
 
+function normalizeTitle(value: string): string {
+  return value
+    .normalize('NFKC')
+    .toLocaleLowerCase('en-US')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+}
+
+function parsedYear(value: string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  if (!/^\d{4}$/.test(value)) throw new CsvImportError('year 必须是四位年份');
+  const year = Number(value);
+  if (year < 1900 || year > 2100) {
+    throw new CsvImportError('year 必须是 1900 到 2100 之间的年份');
+  }
+  return year;
+}
+
+function selectCandidate(
+  items: ExternalPaperCandidate[],
+  title: string,
+  conference: string | undefined,
+  year: number | undefined,
+): ExternalPaperCandidate {
+  let matches = items.filter((item) => normalizeTitle(item.title) === normalizeTitle(title));
+  if (conference) matches = matches.filter((item) => item.conference === conference);
+  if (year !== undefined) matches = matches.filter((item) => item.year === year);
+
+  if (matches.length === 0) {
+    throw new CsvImportError('外部数据源未找到标题、会议和年份完全匹配的论文');
+  }
+  if (matches.length > 1) {
+    throw new CsvImportError('外部数据源返回多个完全匹配的候选，请补充会议或年份后重试');
+  }
+  return matches[0] as ExternalPaperCandidate;
+}
+
 export class CsvImportService {
   constructor(
     private readonly database: DatabaseSync,
     private readonly papers: PaperService,
+    private readonly metadataSearch?: PaperMetadataSearch,
   ) {}
 
-  importText(fileName: string, csv: string): ImportResult {
+  private async paperInput(raw: Record<string, string | undefined>): Promise<Record<string, unknown>> {
+    const title = raw.title?.trim();
+    if (!title) throw new CsvImportError('title 不能为空');
+    const year = parsedYear(raw.year);
+    if (raw.conference && !conferences.has(raw.conference as Conference)) {
+      throw new CsvImportError('conference 只能是 CVPR、ICCV 或 ECCV');
+    }
+
+    if (raw.paperUrl) {
+      return {
+        ...raw,
+        title,
+        keywords: splitList(raw.keywords),
+        authors: splitList(raw.authors),
+        year,
+        source: 'csv',
+      };
+    }
+
+    if (!this.metadataSearch) {
+      throw new CsvImportError('paperUrl 缺失，且当前未配置外部论文检索服务');
+    }
+
+    const result = await this.metadataSearch.searchByTitle(title);
+    const candidate = selectCandidate(result.items, title, raw.conference, year);
+    return {
+      ...candidate,
+      externalId: raw.externalId ?? candidate.externalId,
+      title,
+      abstract: raw.abstract ?? candidate.abstract,
+      keywords: raw.keywords === undefined ? candidate.keywords : splitList(raw.keywords),
+      authors: raw.authors === undefined ? candidate.authors : splitList(raw.authors),
+      conference: (raw.conference as Conference | undefined) ?? candidate.conference,
+      venue: raw.venue ?? candidate.venue,
+      year: year ?? candidate.year,
+      paperUrl: candidate.paperUrl,
+      doi: raw.doi ?? candidate.doi,
+      source: candidate.source,
+    };
+  }
+
+  async importText(fileName: string, csv: string): Promise<ImportResult> {
     if (Buffer.byteLength(csv, 'utf8') > 1_000_000) {
       throw new CsvImportError('CSV 文件不能超过 1 MB');
     }
@@ -72,31 +161,36 @@ export class CsvImportService {
       VALUES (?, 'running', ?)
     `).run(fileName, rows.length - 1);
     const id = Number(insertTask.lastInsertRowid);
-    const failures: ImportFailure[] = [];
-    let successCount = 0;
+    const dataRows = rows.slice(1);
+    const outcomes: Array<ImportFailure | null> = new Array(dataRows.length).fill(null);
+    let nextIndex = 0;
 
-    for (const row of rows.slice(1)) {
-      const raw = Object.fromEntries(headers.map((header, index) => [header, optional(row.cells[index])]));
-      try {
-        if (row.cells.length !== headers.length) throw new CsvImportError('列数与表头不一致');
-        if (!raw.conference) throw new CsvImportError('conference 不能为空');
-        if (!raw.year || !/^\d{4}$/.test(raw.year)) throw new CsvImportError('year 必须是四位年份');
-        this.papers.create({
-          ...raw,
-          keywords: splitList(raw.keywords),
-          authors: splitList(raw.authors),
-          year: Number(raw.year),
-          source: 'csv',
-        });
-        successCount += 1;
-      } catch (error) {
-        failures.push({
-          line: row.line,
-          title: raw.title ?? null,
-          reason: error instanceof Error ? error.message : '未知错误',
-        });
+    const worker = async (): Promise<void> => {
+      while (nextIndex < dataRows.length) {
+        const index = nextIndex;
+        nextIndex += 1;
+        const row = dataRows[index];
+        if (!row) continue;
+        const raw = Object.fromEntries(
+          headers.map((header, cellIndex) => [header, optional(row.cells[cellIndex])]),
+        );
+        try {
+          if (row.cells.length !== headers.length) throw new CsvImportError('列数与表头不一致');
+          this.papers.create(await this.paperInput(raw));
+        } catch (error) {
+          outcomes[index] = {
+            line: row.line,
+            title: raw.title ?? null,
+            reason: error instanceof Error ? error.message : '未知错误',
+          };
+        }
       }
-    }
+    };
+
+    const concurrency = Math.min(3, dataRows.length);
+    await Promise.all(Array.from({ length: concurrency }, () => worker()));
+    const failures = outcomes.filter((outcome): outcome is ImportFailure => outcome !== null);
+    const successCount = dataRows.length - failures.length;
 
     this.database.prepare(`
       UPDATE import_tasks SET status = 'completed', success_count = ?,

@@ -1,0 +1,4 @@
+title,conference,year,paperUrl,authors,keywords
+Vision Pulse CSV Acceptance Sample 20260922,CVPR,2026,https://example.com/vision-pulse-csv-acceptance-20260922,Lin Chen|Mei Zhang,Object Detection|Open World
+Vision Pulse Invalid Year Sample,ICCV,20X5,https://example.com/vision-pulse-invalid-year,Wei Liu,Vision Language
+Vision Pulse Invalid URL Sample,ECCV,2024,not-a-url,Jia Wang,Image Segmentation

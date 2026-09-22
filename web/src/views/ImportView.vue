@@ -137,8 +137,9 @@ async function importCsv(): Promise<void> {
         <div class="requirements">
           <h3>文件要求</h3>
           <p>最大 1 MB，最多 500 条数据</p>
-          <p>必填列：title、conference、year、paperUrl</p>
-          <p>authors、keywords 多个值使用 | 分隔</p>
+          <p>最少包含 title；conference、year 可辅助精确匹配</p>
+          <p>缺少 paperUrl 时自动查询 OpenAlex / DBLP 补全论文信息</p>
+          <p>完整数据可直接导入；authors、keywords 多个值使用 | 分隔</p>
         </div>
         <div v-if="selectedFile" class="file-chip">
           <span>▤</span>

@@ -1,22 +1,28 @@
 # 软件工程实践第二次作业——与 AI 结对完成顶会热词统计平台
 
-> 本文工程内容已按最终本地版本更新。标记为 **【待截图】** 的位置需要在发布到 CSDN 前插入对应图片；云端部署暂缓，不虚构公网地址和公网测试结果。
+> 本文工程内容、运行截图、测试结果和 CodeArts 发布记录均按最终本地版本整理；云端部署暂缓，不虚构公网地址和公网测试结果。
 
 ## 作业信息
 
+| 作业规定项目 | 内容 |
+| --- | --- |
+| 这个作业属于哪个课程 | [福州大学 2026 年软件工程实践](https://bbs.csdn.net/forums/2601_CS_SE_FZU) |
+| 这个作业要求在哪里 | [软件工程实践第二次作业——与 AI 结对编程（顶会热词统计）](https://bbs.csdn.net/topics/620526318) |
+| 这个作业的目标 | 与 AI 结对完成需求分析、交互原型和 Web 编码实现；掌握 PSP、NABCD、Git 分支协作、测试验证与 AI 输出审查方法，并实现计算机视觉顶会论文管理和热词趋势分析平台。 |
+| 其他参考文献 | 《构建之法》第 3、4、8 章；[Vue 官方指南](https://vuejs.org/guide/introduction.html)；[Express 官方文档](https://expressjs.com/)；[Apache ECharts Handbook](https://echarts.apache.org/handbook/en/get-started/) |
+
+### 项目与工具信息
+
 | 项目 | 内容 |
 | --- | --- |
-| 课程 | 软件工程实践 |
-| 作业 | 第二次作业——与 AI 结对编程 |
-| 作业要求 | [软件工程实践第二次作业要求](https://bbs.csdn.net/topics/620526318) |
 | 学号 | 102400328 |
 | 项目名称 | 视界脉冲（Vision Pulse）——计算机视觉顶会热词统计平台 |
 | CodeArts 仓库 | [102400328 项目仓库浏览器页面](https://devcloud.cn-north-4.huaweicloud.com/codehub/project/cc8f24d1c344473688f742c7a429d0b7/codehub/3087813/repo) |
 | 代码规范 | [codestyle.md](../codestyle.md) |
 | Figma 设计稿 | [软件工程实践原型设计](https://www.figma.com/design/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=0-1&t=Ks4WTe5RqD47CL35-1) |
 | Figma 交互原型 | [可交互原型](https://www.figma.com/proto/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=20-2&p=f&t=WLYGV7D1MSgvEdQj-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=20%3A2&show-proto-sidebar=1) |
+| AI 编程助手 | OpenAI Codex 桌面端（基于 GPT-5），主要用于需求梳理、方案讨论、局部代码实现、测试设计、问题定位和文档整理 |
 | 云端部署 | 暂缓；已完成 Docker 配置与本地生产模式验证 |
-| AI 工具 | OpenAI Codex 桌面端（基于 GPT-5） |
 
 ## 目录
 
@@ -31,7 +37,6 @@
 - [九、AI 协作过程](#九ai-协作过程)
 - [十、项目管理与部署](#十项目管理与部署)
 - [十一、总结与反思](#十一总结与反思)
-- [十二、提交前检查表](#十二提交前检查表)
 
 ---
 
@@ -211,18 +216,19 @@ Figma 中共设计六类主要页面：
 
 ### 4.4 原型截图
 
-> 最终至少放入 10 张清晰截图或 GIF。每张图需要有编号和说明，不能只堆图片。
+Figma 文件包含热门总览、热度趋势、论文管理、数据导入、论文详情和关于平台六组页面，并补充了新增、编辑、删除确认、导入结果和年度动画状态。
 
-1. 【待截图 1：热门总览原型】
-2. 【待截图 2：热度趋势原型】
-3. 【待截图 3：论文列表原型】
-4. 【待截图 4：新增或编辑论文弹窗】
-5. 【待截图 5：删除确认弹窗】
-6. 【待截图 6：论文检索和 CSV 上传原型】
-7. 【待截图 7：CSV 导入结果】
-8. 【待截图 8：论文详情】
-9. 【待截图 9：关于平台】
-10. 【待截图 10：Figma 原型连线或交互演示】
+![Figma 页面总览](images/blog/figma-page-overview.png)
+
+*图 1　Figma 页面与状态总览*
+
+![Figma 原型连线](images/blog/figma-prototype-connections.png)
+
+*图 2　Figma Prototype 交互连线*
+
+![Figma 弹窗与导入页面设计](images/blog/figma-dialog-and-import-designs.png)
+
+*图 3　论文弹窗、删除确认和 CSV 导入结果等细化设计*
 
 ---
 
@@ -320,68 +326,108 @@ server/src/
 | 论文查询 | 题目、关键词、会议、年份、编号 | 组合过滤、分页和精确题目匹配 | 论文列表与总页数 |
 | 论文维护 | 论文表单 | 校验后新增或更新，删除前二次确认 | 数据库记录和操作反馈 |
 | 外部检索 | 完整论文题目 | 本地优先，未命中才查询 OpenAlex/DBLP | 本地结果或待确认候选项 |
-| CSV 导入 | UTF-8 CSV 文件 | 文件级检查、逐行校验、部分成功保存 | 成功数、失败数和失败明细 |
+| CSV 导入 | 论文题目列表或完整 UTF-8 CSV | 完整数据直接导入；仅有题目时联网补全，逐行校验并部分成功保存 | 补全后的论文、成功数、失败数和失败明细 |
 | 论文详情 | 论文编号 | 并行请求论文详情和相关推荐 | 摘要、关键词、原文、相关论文 |
 
 ### 6.1 热门总览
 
 总览页展示样本规模、关键词 Top 10、关键词共现关系和会议/年份概况，帮助用户快速掌握当前数据范围。
 
-【待截图：前端热门总览实际运行效果】
+![热门总览实际运行效果](images/blog/app-hotwords-overview.png)
+
+*图 4　热门总览：样本规模、Top 10 与关键词关联图谱*
+
+Top 10 条目和图谱节点都不是静态装饰：点击任一关键词后，路由会携带该关键词进入论文库并自动执行筛选，形成“发现研究方向—查看相关论文”的完整操作闭环；论文库的筛选结果界面见图 8。
 
 ### 6.2 年度热词排名动画
 
 趋势页将不同年份作为动画帧，每隔固定时间切换一次年度数据。用户可以暂停、继续、重新播放，也可以点击年份直接跳转。柱子高度按当前帧最大热度归一化，使排名变化更直观。
 
-【待插入 GIF：年度热词排名变化动画】
+![2024 年热词排名动画帧](images/blog/app-trends-2024.png)
+
+*图 5　年度热词排名动画播放到 2024 年时的页面状态*
+
+![2023 年趋势与折线图提示框](images/blog/app-trends-2023-tooltip.png)
+
+*图 6　切换到 2023 年并悬停折线图后的数值提示*
 
 ### 6.3 跨会议折线对比
 
 选择一个关键词后，系统同时显示该词在 CVPR、ICCV 和 ECCV 中的年度热度。与原型中的浅色图表相比，最终前端采用与全站一致的深色图表背景，提高视觉统一性和对比度。
 
-![跨会议折线图设计资源](prototype/trend-line-chart-only.png)
+![跨会议折线图设计资源](images/blog/design-trend-line-chart.png)
+
+*图 7　跨会议折线图的独立设计资源*
 
 ### 6.4 论文检索与管理
 
 论文库支持题目、关键词、会议、年份、论文编号等组合查询，并支持精确匹配。表格中的长标题使用省略显示，点击后进入详情页。删除操作需要二次确认，弹窗使用深色主题，避免浏览器默认白色弹窗破坏视觉统一。
 
-【待截图：论文列表、筛选条件和分页】
+![论文列表、筛选条件和分页](images/blog/app-paper-list.png)
 
-【待截图：深色删除确认弹窗】
+*图 8　论文列表支持组合筛选和分页*
+
+![编辑论文弹窗](images/blog/app-paper-edit-dialog.png)
+
+*图 9　使用真实长标题和摘要验证编辑弹窗*
+
+![深色删除确认弹窗](images/blog/app-paper-delete-dialog.png)
+
+*图 10　与全站主题一致的删除确认弹窗*
 
 ### 6.5 论文详情与相关推荐
 
 详情页展示标题、会议、年份、来源、作者、摘要、关键词和原文链接。针对真实论文标题、作者和 URL 较长的问题，页面使用响应式列宽、自动换行和文本截断，避免内容撑宽浏览器。右侧根据共享关键词推荐相关论文。
 
-【待截图：论文详情实际运行效果】
+![论文详情实际运行效果](images/blog/app-paper-detail.png)
 
-### 6.6 CSV 批量导入
+*图 11　真实论文详情、关键词和相关推荐*
 
-前端在选择文件时先检查扩展名和 1 MB 大小限制；后端继续校验 CSV 结构和每行数据。导入结束后分别显示总数据、成功导入和导入失败数量。如果某些行失败，系统显示具体行号和原因，而成功行仍会保存。
+### 6.6 本地优先检索与外部候选确认
 
-必填列为：
+输入完整论文题目后，系统先检索 SQLite。本地命中时直接显示已有论文；本地未命中时再请求 OpenAlex，并在 DBLP 可用时进行校对。外部候选只有在用户点击“确认保存”后才会进入本地论文库。
+
+![本地论文检索结果](images/blog/app-local-paper-search.png)
+
+*图 12　本地命中时返回论文信息并标记“已在本地”*
+
+![外部论文候选结果](images/blog/app-external-search-attention.png)
+
+*图 13　本地未命中后由 OpenAlex 返回外部候选论文*
+
+### 6.7 CSV 批量导入
+
+前端在选择文件时先检查扩展名和 1 MB 大小限制；后端继续校验 CSV 结构和每行数据。CSV 可以是完整论文数据，也可以只是待爬取的论文题目列表。完整行中已经提供 `paperUrl` 时直接导入；缺少链接时，系统按题目查询 OpenAlex/DBLP，自动补全摘要、关键词、作者和原文链接。为避免保存错误论文，只有标题完全匹配且候选唯一时才自动保存；会议和年份可用于消除同名候选歧义。
+
+最小表头为：
 
 ```text
-title, conference, year, paperUrl
+title
 ```
 
-`authors` 和 `keywords` 中的多个值使用 `|` 分隔。
+`conference` 和 `year` 可用于提高匹配精度。完整数据还可提供 `paperUrl`、`abstract`、`authors`、`keywords` 等字段，其中 `authors` 和 `keywords` 的多个值使用 `|` 分隔。批量外部查询最多并发 3 条；某一行没有精确候选、候选仍有歧义或外部数据源不可用时，只将该行记入失败明细，其他合法行继续处理。
 
-【待截图：CSV 文件选择状态】
+![CSV 文件选择状态](images/blog/app-csv-file-selected.png)
 
-【待截图：带失败明细的 CSV 导入结果】
+*图 14　选择 CSV 文件后的待导入状态*
 
-### 6.7 关于平台
+![CSV 部分成功导入结果](images/blog/csv-partial-import-result.png)
+
+*图 15　3 条数据中 1 条成功、2 条失败，并显示具体行号和原因*
+
+### 6.8 关于平台
 
 关于页面说明平台定位、三个会议、数据范围、关键词提取规则和热度统计口径，防止用户误解样本数据。
 
-【待截图：关于平台实际运行效果】
+![关于平台实际运行效果](images/blog/app-about.png)
+
+*图 16　数据范围、外部来源和热度统计口径说明*
 
 ---
 
 ## 七、关键代码说明
 
-> 作业要求展示约 300 行关键代码。最终版将从下列模块中选取完整且连续的核心代码，并补充行号截图或代码块。当前先展示代表性片段。
+> 按作业要求，本文从实际项目中选取约 300 余行核心 TypeScript 代码，覆盖关键词处理、趋势动画、本地优先检索、外部请求可靠性、CSV 导入与热度统计。为保证阅读连贯，代码按业务流程组织，并在每段后说明设计目的、边界条件和验证方式；框架装配及重复样板代码不再展开。
 
 ### 7.1 关键词规范化与自动提取
 
@@ -606,149 +652,165 @@ export async function fetchJson(
 }
 ```
 
-### 7.7 CSV 逐行校验与部分成功策略
+### 7.7 CSV 自动补全、逐行校验与部分成功策略
 
-CSV 服务先检查文件级错误，再处理每一行。文件过大、表头缺失或包含不支持的列时直接拒绝；某一数据行存在问题时只记录该行失败，其他合法行仍可保存。最终导入任务会保存成功数量、失败数量和 JSON 格式的错误报告。
+CSV 服务先检查文件级错误，再处理每一行。文件过大、缺少 `title` 或包含不支持的列时直接拒绝。提供 `paperUrl` 的完整数据直接写入；仅提供题目时调用外部检索，并且只接受标题完全一致、经会议和年份筛选后唯一的候选。最多同时处理 3 行，既缩短批量等待时间，也避免无上限并发冲击第三方接口。某一行检索失败、候选有歧义或字段非法时，只记录该行失败，其他合法行仍可保存。
 
 ```ts
-const requiredColumns = [
-  'title',
-  'conference',
-  'year',
-  'paperUrl',
-] as const;
+const requiredColumns = ['title'] as const;
 
-const allowedColumns = new Set([
-  'externalId',
-  'title',
-  'abstract',
-  'keywords',
-  'authors',
-  'conference',
-  'venue',
-  'year',
-  'paperUrl',
-  'doi',
-]);
-
-function optional(value: string | undefined): string | undefined {
-  const trimmed = value?.trim();
-  return trimmed || undefined;
+function normalizeTitle(value: string): string {
+  return value
+    .normalize('NFKC')
+    .toLocaleLowerCase('en-US')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
 }
 
-function splitList(value: string | undefined): string[] {
-  return value
-    ?.split('|')
-    .map((item) => item.trim())
-    .filter(Boolean) ?? [];
+function selectCandidate(
+  items: ExternalPaperCandidate[],
+  title: string,
+  conference: string | undefined,
+  year: number | undefined,
+): ExternalPaperCandidate {
+  let matches = items.filter(
+    (item) => normalizeTitle(item.title) === normalizeTitle(title),
+  );
+  if (conference) {
+    matches = matches.filter((item) => item.conference === conference);
+  }
+  if (year !== undefined) {
+    matches = matches.filter((item) => item.year === year);
+  }
+
+  if (matches.length === 0) {
+    throw new CsvImportError(
+      '外部数据源未找到标题、会议和年份完全匹配的论文',
+    );
+  }
+  if (matches.length > 1) {
+    throw new CsvImportError(
+      '外部数据源返回多个完全匹配的候选，请补充会议或年份后重试',
+    );
+  }
+  return matches[0];
 }
 
 export class CsvImportService {
   constructor(
     private readonly database: DatabaseSync,
     private readonly papers: PaperService,
+    private readonly metadataSearch?: PaperMetadataSearch,
   ) {}
 
-  importText(fileName: string, csv: string): ImportResult {
-    if (Buffer.byteLength(csv, 'utf8') > 1_000_000) {
-      throw new CsvImportError('CSV 文件不能超过 1 MB');
+  private async paperInput(
+    raw: Record<string, string | undefined>,
+  ): Promise<Record<string, unknown>> {
+    const title = raw.title?.trim();
+    if (!title) throw new CsvImportError('title 不能为空');
+
+    const year = raw.year === undefined
+      ? undefined
+      : Number(raw.year);
+    if (raw.year !== undefined && !/^\d{4}$/.test(raw.year)) {
+      throw new CsvImportError('year 必须是四位年份');
     }
 
-    let rows;
-    try {
-      rows = parseCsv(csv);
-    } catch (error) {
-      if (error instanceof CsvFormatError) {
-        throw new CsvImportError(error.message);
-      }
-      throw error;
+    if (raw.paperUrl) {
+      return {
+        ...raw,
+        title,
+        keywords: splitList(raw.keywords),
+        authors: splitList(raw.authors),
+        year,
+        source: 'csv',
+      };
     }
 
-    if (rows.length < 2) {
-      throw new CsvImportError('CSV 文件没有可导入的数据行');
-    }
-    if (rows.length > 501) {
-      throw new CsvImportError('单次最多导入 500 篇论文');
-    }
-
-    const headers = rows[0]?.cells.map((cell) => cell.trim()) ?? [];
-    if (
-      new Set(headers).size !== headers.length
-      || headers.some((header) => !allowedColumns.has(header))
-    ) {
-      throw new CsvImportError('CSV 表头包含重复或不支持的列');
-    }
-
-    const missing = requiredColumns.filter(
-      (column) => !headers.includes(column),
-    );
-    if (missing.length > 0) {
-      throw new CsvImportError(`CSV 缺少必填列：${missing.join('、')}`);
-    }
-
-    const insertTask = this.database.prepare(`
-      INSERT INTO import_tasks (file_name, status, total_count)
-      VALUES (?, 'running', ?)
-    `).run(fileName, rows.length - 1);
-
-    const id = Number(insertTask.lastInsertRowid);
-    const failures: ImportFailure[] = [];
-    let successCount = 0;
-
-    for (const row of rows.slice(1)) {
-      const raw = Object.fromEntries(
-        headers.map((header, index) => [
-          header,
-          optional(row.cells[index]),
-        ]),
+    if (!this.metadataSearch) {
+      throw new CsvImportError(
+        'paperUrl 缺失，且当前未配置外部论文检索服务',
       );
-
-      try {
-        if (row.cells.length !== headers.length) {
-          throw new CsvImportError('列数与表头不一致');
-        }
-        if (!raw.conference) {
-          throw new CsvImportError('conference 不能为空');
-        }
-        if (!raw.year || !/^\d{4}$/.test(raw.year)) {
-          throw new CsvImportError('year 必须是四位年份');
-        }
-
-        this.papers.create({
-          ...raw,
-          keywords: splitList(raw.keywords),
-          authors: splitList(raw.authors),
-          year: Number(raw.year),
-          source: 'csv',
-        });
-        successCount += 1;
-      } catch (error) {
-        failures.push({
-          line: row.line,
-          title: raw.title ?? null,
-          reason: error instanceof Error ? error.message : '未知错误',
-        });
-      }
     }
 
-    this.database.prepare(`
-      UPDATE import_tasks
-      SET status = 'completed', success_count = ?,
-          failure_count = ?, error_report = ?,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(
-      successCount,
-      failures.length,
-      JSON.stringify(failures),
-      id,
+    const result = await this.metadataSearch.searchByTitle(title);
+    const candidate = selectCandidate(
+      result.items,
+      title,
+      raw.conference,
+      year,
     );
+    return {
+      ...candidate,
+      title,
+      abstract: raw.abstract ?? candidate.abstract,
+      keywords: raw.keywords === undefined
+        ? candidate.keywords
+        : splitList(raw.keywords),
+      authors: raw.authors === undefined
+        ? candidate.authors
+        : splitList(raw.authors),
+      conference: raw.conference ?? candidate.conference,
+      year: year ?? candidate.year,
+      source: candidate.source,
+    };
+  }
 
+  async importText(
+    fileName: string,
+    csv: string,
+  ): Promise<ImportResult> {
+    // 此处省略文件大小、行数、表头校验及任务记录创建。
+    const dataRows = rows.slice(1);
+    const outcomes: Array<ImportFailure | null> =
+      new Array(dataRows.length).fill(null);
+    let nextIndex = 0;
+
+    const worker = async (): Promise<void> => {
+      while (nextIndex < dataRows.length) {
+        const index = nextIndex;
+        nextIndex += 1;
+        const row = dataRows[index];
+        if (!row) continue;
+
+        const raw = Object.fromEntries(
+          headers.map((header, cellIndex) => [
+            header,
+            optional(row.cells[cellIndex]),
+          ]),
+        );
+        try {
+          if (row.cells.length !== headers.length) {
+            throw new CsvImportError('列数与表头不一致');
+          }
+          this.papers.create(await this.paperInput(raw));
+        } catch (error) {
+          outcomes[index] = {
+            line: row.line,
+            title: raw.title ?? null,
+            reason: error instanceof Error
+              ? error.message
+              : '未知错误',
+          };
+        }
+      }
+    };
+
+    const concurrency = Math.min(3, dataRows.length);
+    await Promise.all(
+      Array.from({ length: concurrency }, () => worker()),
+    );
+    const failures = outcomes.filter(
+      (outcome): outcome is ImportFailure => outcome !== null,
+    );
+    const successCount = dataRows.length - failures.length;
+
+    // 完整实现会把成功数、失败数和逐行错误持久化到导入任务。
     return {
       id,
       fileName,
       status: 'completed',
-      totalCount: rows.length - 1,
+      totalCount: dataRows.length,
       successCount,
       failureCount: failures.length,
       failures,
@@ -838,11 +900,15 @@ pnpm build
 
 | 检查项 | 实际结果 | 结论 |
 | --- | --- | --- |
-| `pnpm test` | 服务端 16 个测试文件、44 个测试全部通过；共享包和前端目前没有测试文件 | 通过，但前端自动化覆盖仍可补充 |
+| `pnpm test` | 服务端 16 个测试文件、46 个测试全部通过；共享包和前端目前没有测试文件 | 通过，但前端自动化覆盖仍可补充 |
 | `pnpm typecheck` | shared、server、web 均通过严格类型检查 | 通过 |
 | `pnpm build` | shared、server、web 均成功构建 | 通过 |
-| 人工前端验收 | 35 项检查中 33 项通过；2 项因当前网络无法访问 OpenAlex/DBLP 而显示预期的友好错误提示 | 本地功能通过，外部源需在不同网络环境复验 |
+| 人工前端验收 | 33 项本地场景通过；2 项外部联网场景随后复验，OpenAlex 候选正常返回，DBLP 触发第三方反爬时自动降级为警告 | 主流程通过，DBLP 可用性受第三方服务控制 |
 | 生产模式冒烟测试 | `/api/health`、首页、详情路由刷新均正常，未知 API 返回 JSON 404 | 通过 |
+
+![自动化测试与类型检查结果](images/blog/verification-tests-typecheck.png)
+
+*图 17　自动化测试与类型检查的阶段性验证截图；新增题目列表补全测试后，服务端当前为 16 个测试文件、46 项测试全部通过*
 
 Vite 构建时提示部分产物压缩后超过 500 kB。它不会导致构建失败，也不影响当前课程项目运行，但说明 Element Plus、ECharts 等依赖形成的公共包仍可进一步拆分。后续可通过手动分包或按需加载降低首屏资源体积。本文不把该警告描述成“完全没有问题”，而是将其作为性能改进项保留。
 
@@ -850,22 +916,31 @@ Vite 构建时提示部分产物压缩后超过 500 kB。它不会导致构建�
 
 ### 8.2 CSV 验收数据设计
 
-为了同时验证成功路径和失败路径，可以准备下列 CSV：
+批量爬取首先使用仅含题目、会议和年份的文件验证自动补全：
+
+```csv
+title,conference,year
+Segment Anything,ICCV,2023
+```
+
+系统会查询外部候选，只有标题完全匹配且会议、年份一致时才保存，并补全摘要、关键词、作者和原文链接。自动化测试使用模拟外部服务验证这一流程，因此不会因测试环境网络状态而产生随机结果；同时覆盖多个完全匹配候选时拒绝猜测，以及完整 CSV 不触发外部查询。
+
+为了验证完整数据直接导入的成功路径和逐行失败路径，另外准备下列 CSV：
 
 ```csv
 title,conference,year,paperUrl,authors,keywords
-Valid Paper,CVPR,2024,https://example.com/valid,Author A|Author B,Object Detection|Open World
-Invalid Year Paper,ICCV,20X5,https://example.com/year,Author C,Vision Language
-Invalid URL Paper,ECCV,2024,not-a-url,Author D,Segmentation
+Vision Pulse CSV Acceptance Sample 20260922,CVPR,2026,https://example.com/vision-pulse-csv-acceptance-20260922,Lin Chen|Mei Zhang,Object Detection|Open World
+Vision Pulse Invalid Year Sample,ICCV,20X5,https://example.com/vision-pulse-invalid-year,Wei Liu,Vision Language
+Vision Pulse Invalid URL Sample,ECCV,2024,not-a-url,Jia Wang,Image Segmentation
 ```
 
-预期结果为总数据 3 条，第 1 条成功保存，后两条分别返回年份和 URL 校验错误。还需要分别测试：空文件、缺少必填列、重复表头、超过 500 条和超过 1 MB。这样可以证明页面上的“成功数/失败数”不是静态原型数据，而是后端真实校验结果。
+实际结果如图 15：总数据 3 条，第 1 条成功保存，第 2、3 条分别返回年份和 URL 校验错误。由于系统会检查重复论文，同一文件第二次导入时第 1 条也会被判定为重复数据。除此之外，测试还覆盖了空文件、缺少必填列、重复表头、超过 500 条和超过 1 MB，证明页面上的“成功数/失败数”来自后端真实校验，而不是静态原型数据。
 
 ### 8.3 问题一：外部论文数据源不可用
 
 **现象：** 在论文检索页输入真实论文题目后，页面提示“外部论文数据源暂时不可用”。
 
-**定位过程：** 本地数据库没有命中后，请求会进入 OpenAlex/DBLP。外部请求可能受到网络、超时、限流或上游临时故障影响。最初错误粒度不足，难以判断到底是没有结果还是上游失败。
+**定位过程：** 本地数据库没有命中后，请求会进入 OpenAlex/DBLP。受限运行环境中两个请求都无法建立连接，因此接口返回 503；在允许正常联网的环境中复验时，OpenAlex 返回 HTTP 200 和有效 JSON，DBLP 虽返回 HTTP 200，但内容是 Anubis 反爬验证页面而不是 JSON。由此确认，主要问题是运行环境网络限制和第三方反爬机制，不是前端按钮或论文检索业务逻辑失效。
 
 **修改：**
 
@@ -874,6 +949,8 @@ Invalid URL Paper,ECCV,2024,not-a-url,Author D,Segmentation
 3. 将“无搜索结果”和“外部数据源不可用”区分处理；
 4. 补充异常分支测试，防止外部错误变成未处理的 500；
 5. 保持本地优先，使外部网络不可用时仍能使用已有数据。
+
+**复验结果：** OpenAlex 可用时接口返回候选论文，页面显示“外部候选结果”；DBLP 不可用时只显示校对源警告，不阻断 OpenAlex 主结果，实际效果见图 13。
 
 ### 8.4 问题二：真实论文详情撑宽浏览器
 
@@ -920,9 +997,19 @@ Invalid URL Paper,ECCV,2024,not-a-url,Author D,Segmentation
 | Git | 汇总适合提交的独立改动并核对测试结果 | 前期逐次授权，收尾阶段确认整体规则与发布范围 |
 | 博客 | 整理结构和可核实的工程事实 | 提供个人时间、截图、感受和最终表述 |
 
+为了明确代码责任，我进一步按成果类型记录归属。这里的“AI 生成”表示 AI 在我给定需求和约束后生成或修改初稿，不代表未经审查直接采用；进入仓库的每一处改动均由我决定是否接受，并由我承担最终责任。
+
+| 成果范围 | AI 参与方式 | 我的编写、修改与验证 |
+| --- | --- | --- |
+| Figma 与前端视觉 | 根据截图分析布局、组件和响应式问题，生成局部 Vue/CSS 修改建议 | 独立确定视觉风格并绘制 Figma；逐页指出颜色、间距和弹窗偏差，使用真实长文本验收 |
+| 论文服务、CSV 导入和外部检索 | 按约束生成服务与接口初稿，补充解析、错误分类、并发限制和测试用例 | 决定本地优先、用户确认、部分成功及“精确且唯一才自动保存”等规则；审查差异并运行测试 |
+| 关键词与趋势统计 | 协助实现规范化、停用词、短语提取和统计接口 | 确定数据范围、热度公式和缺失关键词处理原则，核对页面统计口径 |
+| 自动化测试 | 根据正常路径和边界条件生成测试初稿 | 提供真实故障与验收数据，检查断言是否对应需求并执行完整测试、类型检查和构建 |
+| README 与博客 | 整理已有工程事实、截图顺序和章节结构 | 提供 PSP 实际时间、个人判断、真实截图与反思，删除不准确表述并完成最终确认 |
+
 我把 AI 输出视为“需要验证的结对伙伴建议”，而不是天然正确的最终答案。功能修改至少要经过代码差异检查和相关测试；视觉修改则需要在真实浏览器尺寸和真实论文数据下复核。
 
-> 最终版需要加入真实对话截图，并保留提示词、AI 输出概要、人工修改和修改原因。
+下面三个案例均保留真实对话截图，同时记录提示词、AI 输出概要、人工修改和修改原因。
 
 ### 9.2 代表案例一：从需求到原型
 
@@ -947,7 +1034,9 @@ Invalid URL Paper,ECCV,2024,not-a-url,Author D,Segmentation
 
 **修改原因：** AI 的初稿能快速补齐信息结构，但部分建议偏通用后台风格，与我的视觉方案不一致，需要由我确定最终审美和内容取舍。
 
-【待截图：该案例的 AI 对话记录和 Figma 前后对比】
+![AI 对删除弹窗样式的分析与修改建议](images/blog/ai-dialog-style-review.png)
+
+*图 18　我指出弹窗与设计稿不一致后，AI 分析默认组件样式并给出修改边界；最终运行效果见图 10*
 
 ### 9.3 代表案例二：实现本地优先论文检索和 CSV 导入
 
@@ -969,36 +1058,76 @@ CSV 导入要显示总数、成功数、失败数和失败原因。
 - 指定必填字段和多值分隔符；
 - 将导入设计为“部分成功”，而不是一行失败就全部回滚；
 - 调整前端导入结果配色和布局，使其与 Figma 一致。
+- 对照作业要求复查后，发现原方案要求每行必须自带 `paperUrl`，只能导入完整数据，不能把“论文题目列表”自动补全为论文信息；因此追加第二轮提示，要求保留完整 CSV 兼容性的同时支持仅题目批量爬取。
+
+**第二轮提示与约束：**
+
+```text
+补齐“批量论文列表 → 自动爬取信息”。
+完整 CSV 仍然直接导入；只有论文题目时自动查询外部来源，
+补全摘要、关键词和原文链接。不能因为搜索结果相似就猜测保存，
+候选不唯一或外部服务失败时要按行返回原因，并保留部分成功策略。
+```
+
+**第二轮输出与取舍：** AI 给出“直接导入模式 + 自动补全模式”的兼容方案，并建议并发查询提高效率。我接受双模式和有限并发，但拒绝直接选择搜索结果第一项，最终规则改为标题规范化后完全一致，再使用会议和年份消除歧义；仍有多个候选时该行失败。随后新增自动化测试，分别验证题目列表补全成功、歧义候选拒绝和完整 CSV 不访问外部服务。
 
 **修改原因：** 这些规则能使功能更符合真实使用场景，也便于用户定位错误数据。
 
-【待截图：该案例的提示词、接口测试和导入结果】
+![AI 给出的检索与 CSV 测试入口](images/blog/ai-search-csv-test-guidance-01.png)
 
-### 9.4 代表案例三：调试外部数据源与长文本布局
+*图 19　AI 先说明运行入口与本地检索测试步骤*
 
-**目标：** 修复外部检索不可用，以及真实论文详情宽度溢出的问题。
+![AI 给出的本地和外部检索验收条件](images/blog/ai-search-csv-test-guidance-02.png)
+
+*图 20　本地命中、外部候选和确认保存的验收条件*
+
+![AI 给出的 CSV 正常导入数据](images/blog/ai-csv-normal-import-guidance.png)
+
+*图 21　CSV 正常导入的输入数据与预期结果*
+
+![AI 给出的 CSV 部分失败数据](images/blog/ai-csv-partial-failure-guidance.png)
+
+*图 22　CSV 部分成功策略的测试数据与预期结果；最终运行结果见图 15*
+
+### 9.4 代表案例三：调试外部数据、关键词与长文本布局
+
+**目标：** 修复外部检索不可用、真实论文缺少关键词，以及详情页长文本宽度溢出的问题。
 
 **我的提示词（节选）：**
 
 ```text
 依旧显示外部信息源不可用。
+为什么详情页一直显示暂无关键词？
 论文详情为什么这么宽，浏览器都放不下？
 尽量按照我的设计为主，适当做出合理优化。
 ```
 
-**AI 输出概要：** AI 检查请求链路和页面样式，建议对外部请求增加明确异常类型和超时处理；对详情页增加可收缩列、自动换行、文本截断与响应式断点。
+**AI 输出概要：** AI 检查请求链路、论文返回层和页面样式，建议对外部请求增加明确异常类型和超时处理；在返回论文时统一补充派生关键词；对详情页增加可收缩列、自动换行、文本截断与响应式断点。
 
-**我的修改：** 我提供真实运行截图定位问题，要求保留原设计的主要比例，同时允许为真实数据做响应式优化；修改后继续使用真实长标题、长作者列表进行验证。
+**我的修改：** 我提供真实运行截图定位问题，要求保留原设计的主要比例，同时允许为真实数据做响应式优化；关键词只在原始字段为空时派生，不能覆盖人工关键词；修改后继续使用真实论文和长标题、长作者列表验证详情、推荐与检索结果。
 
-**修改原因：** 单看示例数据无法发现边界问题，必须用真实数据验证。AI 适合快速定位技术原因，但是否接受布局变化需要由我根据设计目标判断。
+**修改原因：** 单看示例数据无法发现边界问题，必须用真实数据验证。关键词问题还要求详情、列表和相关推荐使用同一口径，不能只在某个页面临时修补。AI 适合快速定位技术原因，但是否接受布局变化和数据补全策略仍需要由我判断。
 
-【待截图：错误提示、修改前详情页、修改后详情页和测试结果】
+![AI 定位真实论文关键词缺失问题](images/blog/ai-keyword-debugging.png)
+
+*图 23　AI 根据运行截图定位关键词返回不一致，并给出统一返回层的修复建议；最终详情效果见图 11*
 
 ### 9.5 对 AI 输出的总体评价
 
 AI 在任务拆分、生成重复性代码、补充边界测试和解释技术问题方面效率很高，尤其适合根据明确约束快速迭代。但 AI 并不能自动理解我的全部视觉偏好，也可能在缺少真实运行环境时给出过于理想化的建议。因此，本次结对过程的关键不是“让 AI 一次生成完整项目”，而是由我持续提供约束、检查结果、拒绝不合适方案，并把每次修改控制在可验证范围内。
 
 我认为 AI 最有价值的地方不是代替思考，而是缩短“提出方案—得到实现—运行验证—继续修正”的循环。相对地，当输入只有一句“下一步”时，AI 容易依据通用经验补全细节，结果可能偏离设计稿。后续我逐渐改用截图、具体文字、目标位置和验收条件描述问题，协作效率明显提高。
+
+与传统人人结对相比，人机结对的差异并不只是“速度更快”。两种方式的优势和风险如下：
+
+| 对比维度 | 人机结对 | 传统人人结对 | 我的应对方式 |
+| --- | --- | --- | --- |
+| 响应与产出 | 可以随时响应，擅长快速生成方案、样板代码和测试 | 沟通速度较慢，但能持续理解团队背景和隐含目标 | 让 AI 处理可验证的小任务，把需求取舍留给自己 |
+| 上下文理解 | 依赖当前输入，缺少截图、日志或真实数据时容易补全错误前提 | 搭档能通过长期协作理解业务语境，也能主动追问 | 每轮提供文件、截图、错误信息和验收条件，不只说“继续” |
+| 审查与争论 | 通常会顺从提示，不能代替真正独立的责任主体 | 两名开发者可以相互质疑并共同承担决策责任 | 主动要求备选方案和失败分析，由我作出最终判断 |
+| 知识与幻觉 | 可能引用过时知识、虚构接口或误读第三方服务状态 | 人也可能记错，但更容易明确表达“不确定” | 对作业规则、外部 API 和版本信息查阅原始来源，并以运行结果为准 |
+| 安全与隐私 | 输入代码和数据前必须判断是否包含密钥、个人信息或不可公开内容 | 信息通常只在明确的团队边界内共享 | 不向 AI 提供密钥和敏感数据，示例数据使用虚构作者和链接 |
+| 最终责任 | AI 不能为错误提交、数据损坏或评分结果负责 | 人人结对可以明确分工并共同复核 | 所有代码均由我审查、测试并决定是否进入仓库 |
 
 ### 9.6 AI 协作记录的可追溯性
 
@@ -1034,7 +1163,7 @@ AI 在任务拆分、生成重复性代码、补充边界测试和解释技术�
 
 开发分支为 `dev`。提交按文档、工程骨架、数据库、论文仓储、管理 API、检索、数据初始化与分析、可靠性修复、前端页面等阶段逐步进行，避免把所有代码集中在一次提交中。
 
-在本次博客事实校正提交之前，共完成 24 次有效提交，完整记录如下：
+截至 `1.0.0` 标签，共完成 26 次有效提交，完整记录如下：
 
 ```text
 0b71dc5 Add README.md
@@ -1061,9 +1190,35 @@ d11abc3 docs: plan Flexus production release
 d3e5714 feat(server): serve production web build
 71f8a29 chore(deploy): add Flexus Docker packaging
 e64065d docs: finalize project README and deployment guide
+7dfd898 docs: sync final report with verified project status
+9defd903 release: merge dev for 1.0.0
 ```
 
-【待截图：CodeArts 或本地 Git 的完整提交记录】
+![CodeArts 仓库首页](images/blog/codearts-repository-home.png)
+
+*图 24　CodeArts 仓库首页与最终 README*
+
+![CodeArts 最新提交记录](images/blog/codearts-commits-latest.png)
+
+*图 25　最终合并提交以及发布前的文档、部署和前端实现记录*
+
+![CodeArts 中段提交记录](images/blog/codearts-commits-middle.png)
+
+*图 26　PSP、报告、代码规范与可靠性修复等阶段性提交*
+
+![CodeArts 初期提交记录](images/blog/codearts-commits-earliest.png)
+
+*图 27　工程骨架、数据库、论文仓储和检索功能的初期提交*
+
+`main` 顶端是 `release: merge dev for 1.0.0`，而 `dev` 相对 `main` 显示落后 1、领先 0，说明 `dev` 的全部开发提交已经包含在 `main` 中，仅缺少最后的合并节点。
+
+![dev 合并到 main 的分支状态](images/blog/codearts-branches-merged.png)
+
+*图 28　`dev` 已完整合并到默认分支 `main`*
+
+![CodeArts 1.0.0 标签](images/blog/codearts-tag-1.0.0.png)
+
+*图 29　基于最终合并提交创建的 `1.0.0` 版本标签*
 
 ### 10.3 本地运行
 
@@ -1113,17 +1268,17 @@ docker run -d \
 | `WEB_DIST_PATH` | Vue 生产构建目录 | 镜像内固定为 `/app/web/dist`，由 Express 提供 |
 | `/api` 路由优先级 | 保证未知 API 返回 JSON 404 | 必须注册在前端 SPA 回退之前 |
 
-本机未安装 Docker，因此没有虚构镜像构建结果；但已经使用与容器一致的生产环境变量完成等价启动验证：健康接口、首页和详情路由均返回 200，未知 API 返回 JSON 404，44 项自动化测试、类型检查和生产构建全部通过。
+本机未安装 Docker，因此没有虚构镜像构建结果；但已经使用与容器一致的生产环境变量完成等价启动验证：健康接口、首页和详情路由均返回 200，未知 API 返回 JSON 404，46 项自动化测试、类型检查和生产构建全部通过。
 
 华为云服务器部署按当前安排暂缓。恢复部署后还需要验证：六个页面直接访问与刷新、论文筛选、详情页、增删改、CSV 导入、趋势动画、外部检索失败提示，以及服务重启后的 SQLite 数据是否仍然存在。公网地址和公网测试结果只能在实际完成后补充。
 
-发布前还需要完成：
+当前发布状态如下：
 
-1. 将 `dev` 合并到 `main`；
-2. 在 CodeArts 创建 `1.0.0` Release；
-3. 通过公网地址检查全部页面和接口（部署恢复后）；
-4. 确认仓库、Figma 原型和博客中的链接均可访问；
-5. 插入博客所需的真实截图和 AI 对话记录。
+1. 已将 `dev` 合并到 `main`；
+2. 已在 CodeArts 创建 `1.0.0` 标签，作为当前版本发布标记；
+3. 已完成本地自动化测试、类型检查、生产构建和主要功能截图；
+4. 恢复云端部署后，再通过公网地址检查全部页面和接口；
+5. 发布博客前还需确认仓库、Figma 原型和博客链接的访问权限。
 
 ---
 
@@ -1148,37 +1303,3 @@ AI 显著提高了信息整理、方案比较和编码迭代速度，但高质�
 对我而言，最明显的一次体会来自前端设计还原。最初生成的部分页面虽然功能结构完整，但颜色、间距、弹窗和图表风格与我的 Figma 设计差距较大。我没有因为页面“能运行”就接受，而是逐项指出不一致的位置，坚持以自己的设计为主，只允许在响应式布局、长文本和错误状态上做合理优化。之后真实论文的长标题和作者列表又证明，设计还原也不能机械复制固定画布，必须在视觉一致性和真实数据适配之间取平衡。
 
 另一个重要体会是控制变更范围。前期我要求 AI 在每次 Git 提交前获得许可；收尾阶段在我明确授权后，仍按能够单独说明和验证的工作单元提交。这样比一次提交全部文件更容易看清每一步改变了什么，也能在出现问题时快速定位。AI 提高了实现速度，但需求取舍、设计判断、测试验收和最终责任仍然属于开发者。
-
----
-
-## 十二、提交前检查表
-
-### 博客内容
-
-- [x] 开头信息表
-- [x] 可点击目录
-- [x] NABCD 分析
-- [x] 原型工具、链接与交互说明
-- [x] 系统架构和实现流程
-- [x] 三个 AI 协作代表案例框架
-- [x] 填写 PSP 预估和实际时间
-- [x] 补充 CodeArts 仓库地址
-- [ ] 补充华为云部署地址（当前暂缓）
-- [x] 补充 AI 工具和模型说明
-- [ ] 插入至少 10 张截图或 GIF
-- [x] 补充约 300 行关键代码及逐段解释
-- [x] 插入完整测试结果说明
-- [x] 将总结改成最终个人表述
-
-### 工程与仓库
-
-- [x] 达到 15 次以上真实、合理的提交
-- [x] 后端 16 个测试文件、44 项自动化测试通过
-- [x] 完成 35 项前端人工验收，并记录 2 项外部网络限制
-- [x] 类型检查通过
-- [x] 生产构建通过（存在分包体积警告）
-- [x] README 更新完成
-- [ ] `dev` 合并到 `main`
-- [ ] 创建 Release 1.0.0
-- [ ] 华为云部署并完成公网验收（当前暂缓）
-- [ ] 检查仓库、原型、部署和博客链接权限
