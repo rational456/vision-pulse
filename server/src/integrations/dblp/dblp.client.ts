@@ -108,7 +108,13 @@ export class DblpClient implements BibliographyProvider {
     const payload = await fetchJson(
       'DBLP',
       url,
-      { signal: AbortSignal.timeout(this.timeoutMs) },
+      {
+        signal: AbortSignal.timeout(this.timeoutMs),
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'top-conference-hotwords/0.1 (academic course project)',
+        },
+      },
       this.fetchImplementation,
     );
 

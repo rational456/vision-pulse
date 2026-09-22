@@ -151,7 +151,13 @@ export class OpenAlexClient implements ContentProvider {
     const payload = await fetchJson(
       'OpenAlex',
       url,
-      { signal: AbortSignal.timeout(this.timeoutMs) },
+      {
+        signal: AbortSignal.timeout(this.timeoutMs),
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': 'top-conference-hotwords/0.1 (academic course project)',
+        },
+      },
       this.fetchImplementation,
     );
     const normalizedQuery = normalizeTitle(title);
