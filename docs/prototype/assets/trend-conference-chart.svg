@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="350" viewBox="0 0 440 350" role="img" aria-labelledby="title desc">
+  <title id="title">同一关键词跨会议热度走势示意图</title>
+  <desc id="desc">2022 至 2025 年 CVPR、ICCV、ECCV 的示意走势，不代表真实统计数值。</desc>
+  <rect x="0" y="0" width="440" height="350" fill="#E7E9EB"/>
+
+  <g id="chart-grid" fill="none" stroke="#CBD3D1" stroke-width="1">
+    <path d="M28 34H420 M28 94H420 M28 154H420 M28 214H420"/>
+  </g>
+
+  <g id="cvpr-trend" fill="none" stroke="#91BA1C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M46 164L164 126L282 147L400 76"/>
+    <g fill="#E7E9EB" stroke-width="3">
+      <circle cx="46" cy="164" r="6"/><circle cx="164" cy="126" r="6"/>
+      <circle cx="282" cy="147" r="6"/><circle cx="400" cy="76" r="6"/>
+    </g>
+  </g>
+
+  <g id="iccv-trend" fill="none" stroke="#21A99E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M46 190L164 157L282 109L400 132"/>
+    <g fill="#E7E9EB" stroke-width="3">
+      <circle cx="46" cy="190" r="6"/><circle cx="164" cy="157" r="6"/>
+      <circle cx="282" cy="109" r="6"/><circle cx="400" cy="132" r="6"/>
+    </g>
+  </g>
+
+  <g id="eccv-trend" fill="none" stroke="#E89B55" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M46 215L164 193L282 173L400 111"/>
+    <g fill="#E7E9EB" stroke-width="3">
+      <circle cx="46" cy="215" r="6"/><circle cx="164" cy="193" r="6"/>
+      <circle cx="282" cy="173" r="6"/><circle cx="400" cy="111" r="6"/>
+    </g>
+  </g>
+
+  <g id="year-labels" fill="#53605C" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="14" text-anchor="middle">
+    <text x="46" y="263">2022</text><text x="164" y="263">2023</text>
+    <text x="282" y="263">2024</text><text x="400" y="263">2025</text>
+  </g>
+
+  <path d="M28 289H420" fill="none" stroke="#D1D8D6" stroke-width="1"/>
+  <g id="prototype-note" fill="#596863" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="13">
+    <text x="28" y="321">原型示意，最终数值以系统统计为准</text>
+  </g>
+</svg>
