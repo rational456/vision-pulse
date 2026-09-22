@@ -8,7 +8,7 @@
 - 华为云 CodeArts：[仓库项目页](https://devcloud.cn-north-4.huaweicloud.com/codehub/project/cc8f24d1c344473688f742c7a429d0b7/codehub/3087813/repo)
 - Figma：[设计稿](https://www.figma.com/design/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=0-1&t=Ks4WTe5RqD47CL35-1)
 - Figma：[交互原型](https://www.figma.com/proto/Oq2iDo2gYAb48uy7FDrsxX/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5?node-id=20-2&p=f&t=WLYGV7D1MSgvEdQj-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=20%3A2&show-proto-sidebar=1)
-- 在线体验：完成 Flexus L 部署后补充
+- 在线体验：[Render 公网版](https://vision-pulse-vbvs.onrender.com)
 - 项目博客：发布后补充
 
 ## 主要功能
@@ -25,7 +25,7 @@
 - 前端：Vue 3、TypeScript、Vite、Vue Router、Element Plus、ECharts
 - 后端：Node.js 24、TypeScript、Express 5、Node SQLite
 - 工程：pnpm workspace、Vitest、Docker
-- 部署：华为云 Flexus L，单容器同时提供前端静态资源与 `/api` 接口
+- 部署：Render 免费 Web Service（Docker），单容器同时提供前端静态资源与 `/api` 接口
 
 ## 项目结构
 
@@ -61,7 +61,7 @@ pnpm typecheck
 pnpm build
 ```
 
-## Docker 部署
+## Docker 与云端部署
 
 构建镜像：
 
@@ -82,6 +82,15 @@ docker run -d \
 ```
 
 容器启动时会幂等初始化数据库。数据保存在宿主机 `/opt/vision-pulse/data`，重建容器不会丢失。部署后可访问 `/api/health` 检查服务状态。
+
+当前版本已使用同一 `Dockerfile` 部署到 Render：
+
+- 公网站点：<https://vision-pulse-vbvs.onrender.com>
+- 健康检查：<https://vision-pulse-vbvs.onrender.com/api/health>
+- 部署分支：`main`
+- 容器端口：`3000`
+
+Render 免费实例在闲置后会休眠，首次唤醒可能需要约 50 秒。免费实例不提供持久化磁盘，因此重部署或实例重置后会由启动脚本重建 60 篇课程演示数据，不应将该环境用于长期保存用户数据。
 
 ## 数据来源与统计口径
 
@@ -109,13 +118,14 @@ docker run -d \
 - 页面验收：35 项检查中 33 项通过；2 项为当前网络环境下 OpenAlex/DBLP 不可达，界面已正确显示友好错误提示。
 - 生产路由：健康接口、首页及详情页刷新均通过，未知 API 正确返回 JSON 404。
 
-Docker 镜像构建与公网访问将在 Flexus L 创建后进行最终复验，并将结果更新到本节。
+公网生产验证已完成：Render 成功使用仓库根目录 `Dockerfile` 构建并启动服务，首页可正常访问，`/api/health` 返回 `success: true`、`status: ok` 和“服务运行正常”。
 
 ## 已知限制
 
 - 演示数据规模有限，趋势结果仅表示当前数据库中的样本。
 - 外部检索依赖第三方服务和服务器网络环境，可能暂时不可用。
 - 当前采用单机 SQLite，适合课程项目和轻量访问，不面向高并发生产场景。
+- Render 免费实例会休眠且文件系统不持久，长期运行时应改用持久化磁盘或外部数据库。
 
 ## AI 使用说明
 
